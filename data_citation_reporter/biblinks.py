@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from .connect import get
 from .static import BIBLINKS_URL
 from .rdf import URIRefBibcode, URIRefDoi, Graph

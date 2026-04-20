@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # test_biblinks.py
 import pytest
 from rdflib import URIRef, Literal
