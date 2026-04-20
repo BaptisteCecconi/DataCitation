@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from .namespaces import BIBLINK, VOREL, DCITE
 from .datacite import get_dois_from_prefix, get_single_doi, check_datacite
 from .mappings import RESOURCE_TYPE_SDO_DCMITYPE
