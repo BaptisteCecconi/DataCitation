@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools"]
+
+[tool.setuptools]
+packages = ["data_citation_reporter"]
+
+[pytest]
+mock_use_standalone_module = true
+
+[tool.black]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+line-length = 80
+
+[project]
+name = "data-citation-reporter"
+version = "0.0"
+dependencies = [
+    "rdflib",
+    "requests"
+]
+license = "MIT"
+
