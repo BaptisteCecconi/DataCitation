@@ -10,9 +10,11 @@ def URIRefDoi(pid):
     The DOI input syntax is checked to provide a homogeneous output
 
     :param pid: identifier for the DOI
-    :return: URIRef for the DOI
+    :return: URIRef for the DOI (lowercased)
     """
 
+    if isinstance(pid, URIRef):
+        pid = str(pid)
     pidl = pid.lower()
     if pidl.startswith("https://doi.org/"):
         uri = pidl
