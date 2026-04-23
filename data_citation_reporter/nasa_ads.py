@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from rdflib import Literal, URIRef
 from .rdf import shorten_doi, Graph, URIRefDoi
 from rdflib.namespace import DCTERMS, PROV

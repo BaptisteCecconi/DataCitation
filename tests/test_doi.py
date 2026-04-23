@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # test_registration_agency.py
 import pytest
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from typing import Union
 from .static import DOI_RA_URL
 from .rdf import shorten_doi, URIRefDoi

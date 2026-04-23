@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # test_crossref.py
 from unittest.mock import patch
 from rdflib import Graph, URIRef

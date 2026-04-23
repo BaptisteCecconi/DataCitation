@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # test_datacite.py
 from unittest.mock import patch
 

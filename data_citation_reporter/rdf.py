@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import rdflib
 from rdflib import URIRef, BNode
 from rdflib.namespace import RDF

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from .static import (
     CROSSREF_DATACITATIONS_URL,
     CROSSREF_WORKS_URL,

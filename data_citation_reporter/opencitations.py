@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from .static import OPENCITATIONS_URL
 from .namespaces import BIBLINK
 from .rdf import Graph, URIRefDoi

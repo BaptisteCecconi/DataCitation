@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # test_api_client.py
 from unittest.mock import patch, Mock
 from requests.exceptions import ConnectionError, HTTPError

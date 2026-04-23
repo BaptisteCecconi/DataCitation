@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from .rdf import shorten_doi
 from .static import DATACITE_DOIS_URL
 from .connect import get

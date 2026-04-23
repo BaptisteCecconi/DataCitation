@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # test_nasa_ads.py
 from unittest.mock import patch, mock_open
 from rdflib import Graph, URIRef

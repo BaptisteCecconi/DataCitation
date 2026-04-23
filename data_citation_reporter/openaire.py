@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from .static import SCHOLEXPLORER_URL
 from .namespaces import BIBLINK
 from .mappings import OPENAIRE_SCHEMAS

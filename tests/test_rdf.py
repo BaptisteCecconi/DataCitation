@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # test_rdf.py
 import pytest
 from rdflib import URIRef, Literal, Graph
