@@ -6,7 +6,8 @@ DOI_PREFIX_PADC = "10.25935"
 BIBLINKS_URL = (
     "http://voparis-tap-maser.obspm.fr/__system__/biblinks/links/biblinks.json"
 )
-SCHOLEXPLORER_URL = "http://api.scholexplorer.openaire.eu/v1/linksFromPid"
+SCHOLEXPLORER_V1_URL = "http://api.scholexplorer.openaire.eu/v1/linksFromPid"
+OPENAIREGRAPH_V1_URL = "https://api.openaire.eu/graph/v1/researchProducts/links"
 OPENCITATIONS_URL = "http://opencitations.net/index/api/v1"
 CROSSREF_EVENTDATA_URL = "https://api.eventdata.crossref.org/v1/events"
 CROSSREF_DATACITATIONS_URL = "https://api.crossref.org/beta/datacitations/"
