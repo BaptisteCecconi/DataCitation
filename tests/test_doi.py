@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 # test_registration_agency.py
+# TODO: refactor test to remove unittest
+
 import pytest
 
 from unittest.mock import patch
@@ -39,9 +41,7 @@ class TestGetRegistrationAgency:
 
     @patch("data_citation_reporter.doi.get")
     @patch("data_citation_reporter.doi.shorten_doi")
-    def test_get_registration_agency_with_custom_api_url(
-        self, mock_shorten_doi, mock_get
-    ):
+    def test_get_registration_agency_with_custom_api_url(self, mock_shorten_doi, mock_get):
         """Test with custom API URL"""
         custom_api_url = "https://custom.api.example.org/"
         expected_custom_url = f"{custom_api_url}{self.expected_doi}"
@@ -62,9 +62,7 @@ class TestGetRegistrationAgency:
 
     @patch("data_citation_reporter.doi.get")
     @patch("data_citation_reporter.doi.shorten_doi")
-    def test_get_registration_agency_api_error(
-        self, mock_shorten_doi, mock_get
-    ):
+    def test_get_registration_agency_api_error(self, mock_shorten_doi, mock_get):
         """Test RuntimeError when API returns None"""
         # Setup mocks
         mock_shorten_doi.return_value = self.expected_doi
@@ -83,18 +81,14 @@ class TestGetRegistrationAgency:
 
     @patch("data_citation_reporter.doi.get")
     @patch("data_citation_reporter.doi.shorten_doi")
-    def test_get_registration_agency_no_ra_key(
-        self, mock_shorten_doi, mock_get
-    ):
+    def test_get_registration_agency_no_ra_key(self, mock_shorten_doi, mock_get):
         """Test ValueError when 'RA' key is missing from response"""
         # Setup mocks
         mock_shorten_doi.return_value = self.expected_doi
         mock_get.return_value = self.test_data_no_ra
 
         # Call and verify exception
-        with pytest.raises(
-            ValueError, match="not found: https://doi.org/10.1234/example.doi"
-        ):
+        with pytest.raises(ValueError, match="not found: https://doi.org/10.1234/example.doi"):
             get_registration_agency(self.test_uri)
 
         # Verify function calls
@@ -103,9 +97,7 @@ class TestGetRegistrationAgency:
 
     @patch("data_citation_reporter.doi.get")
     @patch("data_citation_reporter.doi.shorten_doi")
-    def test_get_registration_agency_empty_response_list(
-        self, mock_shorten_doi, mock_get
-    ):
+    def test_get_registration_agency_empty_response_list(self, mock_shorten_doi, mock_get):
         """Test ValueError when response list is empty"""
         # Setup mocks
         mock_shorten_doi.return_value = self.expected_doi
@@ -117,9 +109,7 @@ class TestGetRegistrationAgency:
 
     @patch("data_citation_reporter.doi.get")
     @patch("data_citation_reporter.doi.shorten_doi")
-    def test_get_registration_agency_multiple_items(
-        self, mock_shorten_doi, mock_get
-    ):
+    def test_get_registration_agency_multiple_items(self, mock_shorten_doi, mock_get):
         """Test function behavior with multiple items in response (should use first)"""
         # Setup mocks
         mock_shorten_doi.return_value = self.expected_doi
@@ -136,9 +126,7 @@ class TestGetRegistrationAgency:
 
     @patch("data_citation_reporter.doi.get")
     @patch("data_citation_reporter.doi.shorten_doi")
-    def test_get_registration_agency_complex_status(
-        self, mock_shorten_doi, mock_get
-    ):
+    def test_get_registration_agency_complex_status(self, mock_shorten_doi, mock_get):
         """Test with complex status message"""
         # Setup mocks
         mock_shorten_doi.return_value = self.expected_doi
@@ -153,9 +141,7 @@ class TestGetRegistrationAgency:
 
     @patch("data_citation_reporter.doi.get")
     @patch("data_citation_reporter.doi.shorten_doi")
-    def test_get_registration_agency_url_construction(
-        self, mock_shorten_doi, mock_get
-    ):
+    def test_get_registration_agency_url_construction(self, mock_shorten_doi, mock_get):
         """Test that the API URL is constructed correctly"""
         # Setup mocks
         mock_shorten_doi.return_value = "10.5678/another.doi"
@@ -171,16 +157,12 @@ class TestGetRegistrationAgency:
 
     @patch("data_citation_reporter.doi.get")
     @patch("data_citation_reporter.doi.shorten_doi")
-    def test_get_registration_agency_error_messages_include_full_uri(
-        self, mock_shorten_doi, mock_get
-    ):
+    def test_get_registration_agency_error_messages_include_full_uri(self, mock_shorten_doi, mock_get):
         """Test that error messages include the full original URI"""
         # Setup mocks
         mock_shorten_doi.return_value = self.expected_doi
         mock_get.return_value = self.test_data_no_ra
 
         # Call and verify exception with full URI
-        with pytest.raises(
-            ValueError, match="not found: https://doi.org/10.1234/example.doi"
-        ):
+        with pytest.raises(ValueError, match="not found: https://doi.org/10.1234/example.doi"):
             get_registration_agency(self.test_uri)
