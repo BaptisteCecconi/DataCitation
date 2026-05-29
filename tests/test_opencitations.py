@@ -1,4 +1,6 @@
+# -*- coding: utf-8 -*-
 # test_opencitations.py
+# TODO: refactor test to remove unittest
 from unittest.mock import patch
 from rdflib import Graph, URIRef, Literal
 from rdflib.namespace import DCTERMS, PROV, RDF
@@ -15,9 +17,7 @@ class TestGetOpenCitations:
         """Setup test data before each test"""
         self.test_doi = "10.1234/example.doi"
         self.test_pid = f"https://doi.org/{self.test_doi}"
-        self.expected_access_url = (
-            f"{OPENCITATIONS_URL}/citations/{self.test_doi}"
-        )
+        self.expected_access_url = f"{OPENCITATIONS_URL}/citations/{self.test_doi}"
 
         self.test_data = [
             {"citing": "10.5678/another.doi"},
@@ -47,10 +47,7 @@ class TestGetOpenCitations:
 
         # Verify triple structure
         src_uri = URIRef(f"https://doi.org/{self.test_doi}".lower())
-        citing_uris = [
-            URIRef(f"https://doi.org/{cite[0]}".lower())
-            for cite in self.expected_citation_set
-        ]
+        citing_uris = [URIRef(f"https://doi.org/{cite[0]}".lower()) for cite in self.expected_citation_set]
 
         # Check DCTERMS.references triples
         for citing_uri in citing_uris:
