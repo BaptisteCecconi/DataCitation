@@ -106,16 +106,12 @@ class Report(Graph):
             )
         )
         # the schema.org and DCMI types:
-        self.add(
-            (doi, RDF.type, SDO[metadata["attributes"]["types"]["schemaOrg"]])
-        )
+        self.add((doi, RDF.type, SDO[metadata["attributes"]["types"]["schemaOrg"]]))
         self.add(
             (
                 doi,
                 RDF.type,
-                RESOURCE_TYPE_SDO_DCMITYPE[
-                    metadata["attributes"]["types"]["schemaOrg"]
-                ],
+                RESOURCE_TYPE_SDO_DCMITYPE[metadata["attributes"]["types"]["schemaOrg"]],
             )
         )
 
@@ -125,9 +121,7 @@ class Report(Graph):
                 # if there is a NameIdentifier (ORCID)
                 creator_id = creator["nameIdentifiers"][0]["nameIdentifier"]
                 self.add((URIRef(creator_id), RDF.type, FOAF.Person))
-                self.add(
-                    (URIRef(creator_id), FOAF.name, Literal(creator["name"]))
-                )
+                self.add((URIRef(creator_id), FOAF.name, Literal(creator["name"])))
                 self.add((URIRef(creator_id), BIBLINK.scheme, Literal("orcid")))
                 self.add((doi, DCTERMS.creator, URIRef(creator_id)))
             else:
@@ -202,30 +196,22 @@ class Report(Graph):
                 self.add(triple)
 
     def include_biblinks(self, publisher="ObsParis"):
-        return self._include_external_source(get_biblinks, publisher=publisher)
+        self._include_external_source(get_biblinks, publisher=publisher)
 
     def include_scholexplorer(self, publisher="ObsParis"):
-        return self._include_external_source(
-            get_scholexplorer, publisher=publisher
-        )
+        self._include_external_source(get_scholexplorer, publisher=publisher)
 
     def include_openaire_graph(self, publisher="ObsParis"):
-        return self._include_external_source(
-            get_openaire_graph, publisher=publisher
-        )
+        self._include_external_source(get_openaire_graph, publisher=publisher)
 
     def include_opencitations(self, publisher="ObsParis"):
-        return self._include_external_source(
-            get_opencitations, publisher=publisher
-        )
+        self._include_external_source(get_opencitations, publisher=publisher)
 
     #    def include_crossref_eventdata(self, publisher="ObsParis"):
     #        return self._include_external_source(get_eventdata, publisher=publisher)
 
     def include_crossref_datacitations(self, publisher="ObsParis"):
-        return self._include_external_source(
-            get_datacitations, publisher=publisher
-        )
+        return self._include_external_source(get_datacitations, publisher=publisher)
 
     def include_nasa_ads(self, publisher="ObsParis"):
         return self._include_external_source(get_nasa_ads, publisher=publisher)
@@ -255,17 +241,41 @@ class Report(Graph):
         #    f.write(f"# Data citation report for : {doi}\n")
 
         f.write(f"# Data citation report for: {doi}\n")
-        f.write("## Known Citations (manual input from team)\n")
+        f.write("\n-------\n")
+        doi_metadata = [
+            ("title", DCTERMS.title, lambda x: str(x)),
+            ("creators", DCTERMS.creator, lambda x: f"[{str(x).split('/')[-1]}]({str(x)})"),
+            ("publisher", DCTERMS.publisher, lambda x: str(x)),
+            ("product type", RDF.type, lambda x: str(x).split("/")[-1]),
+        ]
+        for item_name, item_property, item_process in doi_metadata:
+            items = set([item_process(x) for x in self.objects(doi, item_property, unique=True)])
+            for item in items:
+                f.write(f" - **{item_name}**: {item}\n")
+
+        query = """
+        PREFIX RDF: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        SELECT ?subject
+        WHERE {
+            ?statement a RDF:Statement .
+            ?statement RDF:subject ?subject .
+        }
+        """
+        nb_citation = len(set(self.query(query)))
+        f.write(f"## Number of research products citing the resource: {nb_citation}\n")
+        f.write("\n-------\n")
+        f.write("## Relations\n")
+        f.write("### Known Citations (manual input)\n")
         if len(self.known_citations) > 0:
             for citation in sorted(self.known_citations):
                 f.write(f"- {citation}\n")
                 citing_pids.add(citation)
         else:
-            f.write("# No known citations\n")
+            f.write("- No known citations\n")
 
         f.write("\n")
         f.write("-------\n")
-        f.write("## Discovered Relations\n")
+        f.write("### Discovered Relations\n")
         relations = {}
         query = """
 PREFIX RDF: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -295,7 +305,12 @@ WHERE {
         citing_predicates = {
             DCITE.cites: "cites",
             DCITE.isPartOf: "is part of",
+            DCITE.hasPart: "has part",
+            DCITE.HasPart: "has part",
+            DCITE.documents: "documents",
+            DCITE.IsDocumentedBy: "is documented by",
             DCITE.issourceof: "is source of",
+            DCITE.IsDerivedFrom: "is derived from",
             DCITE.references: "references",
             DCTERMS.references: "references",
             VOREL.Cites: "cites",
@@ -313,23 +328,17 @@ WHERE {
         #                print(f"- {k} {str(predicate).split('/')[-1]} {object} [{provenance}]")
         f.write("\n")
         f.write("-------\n")
-        f.write("## DOI Metadata Report:\n")
-        buttons = ["⛔️", "*️⃣", "✅"]
+        f.write("## DOI Metadata Citation Assessment Report:\n")
+        buttons = ["🔴", "⚪️", "🟢"]
         for citation in sorted(list(citing_pids)):
             try:
-                f.write(
-                    f"- Verifying [{shorten_doi(citation)}]({citation}):\n\n"
-                )
+                f.write(f"- Verifying [{shorten_doi(citation)}]({citation}):\n\n")
                 ra = get_registration_agency(citation)
                 if ra.lower() == "datacite":
                     result = check_datacite(src_uri=citation, ref_uri=doi)
                 elif ra.lower() == "crossref":
-                    title = str(
-                        list(self.objects(URIRefDoi(doi), DCTERMS.title))[0]
-                    ).lower()
-                    result = check_crossref(
-                        src_uri=citation, ref_uri=doi, ref_title=title
-                    )
+                    title = str(list(self.objects(URIRefDoi(doi), DCTERMS.title))[0]).lower()
+                    result = check_crossref(src_uri=citation, ref_uri=doi, ref_title=title)
                 else:
                     f.write(f"  Registration Agency {ra} is not supported.\n")
                     continue
