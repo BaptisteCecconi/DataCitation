@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # test_scholexplorer.py
+# TODO: refactor test to remove unittest
 
 from unittest.mock import patch
 from rdflib import Graph, URIRef, Literal
@@ -17,7 +18,9 @@ class TestGetOpenaireGraph:
         """Setup test data before each test"""
         self.test_doi = "10.1234/example.doi"
         self.test_pid = URIRefDoi(f"https://doi.org/{self.test_doi}")
-        self.expected_access_url = f"https://api.openaire.eu/graph/v1/researchProducts/links?targetPid={self.test_doi}&page=0&pageSize=100"
+        self.expected_access_url = (
+            f"https://api.openaire.eu/graph/v1/researchProducts/links?targetPid={self.test_doi}&page=0&pageSize=100"
+        )
 
         # Test data with multiple results
         self.test_data = {
@@ -59,9 +62,7 @@ class TestGetOpenaireGraph:
 
     @patch("data_citation_reporter.openaire.requests.get")
     @patch("data_citation_reporter.openaire.URIRefDoi")
-    def test_get_openaire_graph_success(
-        self, mock_uri_ref_doi, mock_requests_get
-    ):
+    def test_get_openaire_graph_success(self, mock_uri_ref_doi, mock_requests_get):
         """Test successful processing with multiple relations"""
         # Setup mocks
         mock_requests_get.return_value.json.return_value = self.test_data
@@ -98,19 +99,13 @@ class TestGetOpenaireGraph:
 
     @patch("data_citation_reporter.openaire.requests.get")
     @patch("data_citation_reporter.openaire.URIRefDoi")
-    def test_get_openaire_graph_no_doi_source(
-        self, mock_uri_ref_doi, mock_requests_get
-    ):
+    def test_get_openaire_graph_no_doi_source(self, mock_uri_ref_doi, mock_requests_get):
         """Test when no DOI is found in source identifiers"""
         # Setup mocks
         test_data_no_doi = {
             "results": [
                 {
-                    "source": {
-                        "identifiers": [
-                            {"idScheme": "other", "idUrl": "other://identifier"}
-                        ]
-                    },
+                    "source": {"identifiers": [{"idScheme": "other", "idUrl": "other://identifier"}]},
                     "relType": {"typeSchema": "citation", "name": "isCitedBy"},
                     "provenance": ["DataCite"],
                 }
@@ -127,9 +122,7 @@ class TestGetOpenaireGraph:
 
     @patch("data_citation_reporter.openaire.requests.get")
     @patch("data_citation_reporter.openaire.URIRefDoi")
-    def test_get_openaire_graph_empty_data(
-        self, mock_uri_ref_doi, mock_requests_get
-    ):
+    def test_get_openaire_graph_empty_data(self, mock_uri_ref_doi, mock_requests_get):
         """Test with empty results"""
         # Setup mocks
         mock_requests_get.return_value.json.return_value = {"results": []}
@@ -151,13 +144,9 @@ class TestGetOpenaireGraph:
 
     @patch("data_citation_reporter.openaire.requests.get")
     @patch("data_citation_reporter.openaire.URIRefDoi")
-    def test_get_openaire_graph_custom_api_url(
-        self, mock_uri_ref_doi, mock_requests_get
-    ):
+    def test_get_openaire_graph_custom_api_url(self, mock_uri_ref_doi, mock_requests_get):
         """Test with custom API URL"""
-        custom_api_url = (
-            "https://custom.api.example.org/graph/v1/researchProducts/links"
-        )
+        custom_api_url = "https://custom.api.example.org/graph/v1/researchProducts/links"
 
         # Setup mocks
         mock_requests_get.return_value.json.return_value = self.test_data
