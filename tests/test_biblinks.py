@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # test_biblinks.py
+
 import pytest
 from rdflib import URIRef, Literal
 
@@ -90,20 +91,14 @@ def test_get_biblinks_bibcode_format(mocker, biblinks_data):
 
     # Verifying result graph
     subjects = list(result.subjects())
-    assert (
-        URIRef("https://adsabs.harvard.edu/abs/2023ApJ...123...45A") in subjects
-    )
+    assert URIRef("https://adsabs.harvard.edu/abs/2023ApJ...123...45A") in subjects
 
     for subject in subjects:
         predicate_objects = set(result.predicate_objects(subject))
-        if subject == URIRef(
-            "https://adsabs.harvard.edu/abs/2023ApJ...123...45A"
-        ):
+        if subject == URIRef("https://adsabs.harvard.edu/abs/2023ApJ...123...45A"):
             assert predicate_objects == {
                 (
-                    URIRef(
-                        "http://www.ivoa.net/rdf/voresource/relationship_type#Cites"
-                    ),
+                    URIRef("http://www.ivoa.net/rdf/voresource/relationship_type#Cites"),
                     URIRef("https://doi.org/10.1234/example.doi"),
                 ),
                 (
@@ -122,26 +117,16 @@ def test_get_biblinks_bibcode_format(mocker, biblinks_data):
                     Literal("biblinks"),
                 ),
                 (
-                    URIRef(
-                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject"
-                    ),
-                    URIRef(
-                        "https://adsabs.harvard.edu/abs/2023ApJ...123...45A"
-                    ),
+                    URIRef("http://www.w3.org/1999/02/22-rdf-syntax-ns#subject"),
+                    URIRef("https://adsabs.harvard.edu/abs/2023ApJ...123...45A"),
                 ),
                 (
                     URIRef("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
-                    URIRef(
-                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement"
-                    ),
+                    URIRef("http://www.w3.org/1999/02/22-rdf-syntax-ns#Statement"),
                 ),
                 (
-                    URIRef(
-                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate"
-                    ),
-                    URIRef(
-                        "http://www.ivoa.net/rdf/voresource/relationship_type#Cites"
-                    ),
+                    URIRef("http://www.w3.org/1999/02/22-rdf-syntax-ns#predicate"),
+                    URIRef("http://www.ivoa.net/rdf/voresource/relationship_type#Cites"),
                 ),
             }
 
@@ -167,9 +152,7 @@ def test_get_biblinks_doi_format(mocker, biblinks_data):
         if subject == URIRef("https://doi.org/10.1000/xyz123"):
             assert predicate_objects == {
                 (
-                    URIRef(
-                        "http://www.ivoa.net/rdf/voresource/relationship_type#IsSupplementTo"
-                    ),
+                    URIRef("http://www.ivoa.net/rdf/voresource/relationship_type#IsSupplementTo"),
                     URIRef("https://doi.org/10.5678/another.doi"),
                 ),
                 (
