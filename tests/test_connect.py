@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # test_api_client.py
+
 import pytest
 from requests.exceptions import ConnectionError, HTTPError
 import json
@@ -85,9 +86,7 @@ def test_get_json_decode_error(mocker, test_url, test_headers):
     mock_get = mocker.patch("requests.get")
     mock_response = mocker.Mock()
     mock_response.raise_for_status.return_value = None
-    mock_response.json.side_effect = json.decoder.JSONDecodeError(
-        "Invalid JSON", "", 0
-    )
+    mock_response.json.side_effect = json.decoder.JSONDecodeError("Invalid JSON", "", 0)
     mock_get.return_value = mock_response
 
     mock_print = mocker.patch("builtins.print")
