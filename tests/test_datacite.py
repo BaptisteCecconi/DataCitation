@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 # test_datacite.py
+# TODO: refactor test to remove unittest
+
 from unittest.mock import patch
 
 from data_citation_reporter.datacite import (
@@ -81,9 +83,7 @@ class TestGetDoisFromPrefix:
     def setup_method(self):
         """Setup test data before each test"""
         self.test_prefix = "10.1234"
-        self.initial_access_url = (
-            f"{DATACITE_DOIS_URL}?prefix={self.test_prefix}&page%5Bsize%5D=50"
-        )
+        self.initial_access_url = f"{DATACITE_DOIS_URL}?prefix={self.test_prefix}&page%5Bsize%5D=50"
 
         # Test data for first page
         self.first_page_data = {
@@ -91,9 +91,7 @@ class TestGetDoisFromPrefix:
                 {"id": "10.1234/first.doi", "type": "dois"},
                 {"id": "10.1234/second.doi", "type": "dois"},
             ],
-            "links": {
-                "next": "https://api.datacite.org/dois?prefix=10.1234&page%5Bsize%5D=50&page=2"
-            },
+            "links": {"next": "https://api.datacite.org/dois?prefix=10.1234&page%5Bsize%5D=50&page=2"},
         }
 
         # Test data for second page (final page)
@@ -223,9 +221,7 @@ class TestCheckDatacite:
         }
 
         # Test data without related identifiers
-        self.test_response_no_related = {
-            "attributes": {"relatedIdentifiers": []}
-        }
+        self.test_response_no_related = {"attributes": {"relatedIdentifiers": []}}
 
     @patch("data_citation_reporter.datacite.get_single_doi")
     @patch("data_citation_reporter.datacite.shorten_doi")
@@ -246,15 +242,11 @@ class TestCheckDatacite:
         assert result["status"] == 2
         assert result["message"] == "Reference found in DataCite metadata."
         assert "reference" in result
-        assert (
-            result["reference"]["relatedIdentifier"] == "10.5678/reference.doi"
-        )
+        assert result["reference"]["relatedIdentifier"] == "10.5678/reference.doi"
 
     @patch("data_citation_reporter.datacite.get_single_doi")
     @patch("data_citation_reporter.datacite.shorten_doi")
-    def test_check_datacite_not_found(
-        self, mock_shorten_doi, mock_get_single_doi
-    ):
+    def test_check_datacite_not_found(self, mock_shorten_doi, mock_get_single_doi):
         """Test reference not found in DataCite metadata"""
         # Setup mocks
         mock_shorten_doi.side_effect = [
@@ -274,9 +266,7 @@ class TestCheckDatacite:
 
     @patch("data_citation_reporter.datacite.get_single_doi")
     @patch("data_citation_reporter.datacite.shorten_doi")
-    def test_check_datacite_no_related_identifiers(
-        self, mock_shorten_doi, mock_get_single_doi
-    ):
+    def test_check_datacite_no_related_identifiers(self, mock_shorten_doi, mock_get_single_doi):
         """Test when DOI has no related identifiers"""
         # Setup mocks
         mock_shorten_doi.side_effect = [
