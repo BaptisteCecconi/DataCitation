@@ -8,7 +8,14 @@ from rdflib.namespace import PROV
 
 
 def get_biblinks(pid: URIRef, access_url: str = BIBLINKS_URL) -> Graph:
+    """Return a graph from IVOA biblinks endpoint.
 
+    Args:
+        pid: persistent identifier
+        access_url: biblink endpoint URL
+    Returns:
+        Graph
+    """
     g = Graph()
 
     data = get(access_url)
