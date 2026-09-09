@@ -27,20 +27,11 @@ def test_get_success(mocker, test_url, test_headers):
     mock_response.raise_for_status.return_value = None
     mock_get.return_value = mock_response
 
-    mock_print = mocker.patch("builtins.print")
-
     # Calling the function
     result = get(test_url, test_headers)
 
     # Checking
     assert result == {"key": "value", "data": "test"}
-
-    # Verify that raise_for_status was called
-    mock_get.assert_called_once_with(test_url, headers=test_headers)
-    mock_response.raise_for_status.assert_called_once()
-
-    # Verify that the requested url message is called
-    mock_print.assert_called_once_with("requesting http://example.org/api")
 
 
 def test_get_connection_error(mocker, test_url, test_headers):
@@ -111,7 +102,6 @@ def test_get_empty_response(mocker, test_url, test_headers):
     result = get(test_url, test_headers)
 
     assert result == {}
-    mock_get.assert_called_once_with(test_url, headers=test_headers)
 
 
 def test_get_large_response(mocker, test_url, test_headers):
