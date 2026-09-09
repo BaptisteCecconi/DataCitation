@@ -1,5 +1,6 @@
 requests
 rdflib
+thefuzz
 pytest
 pre-commit
 pytest-mock

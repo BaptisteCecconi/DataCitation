@@ -29,7 +29,8 @@ name = "data-citation-reporter"
 version = "0.0"
 dependencies = [
     "rdflib",
-    "requests"
+    "requests",
+    "thefuzz"
 ]
 license = "MIT"
 
