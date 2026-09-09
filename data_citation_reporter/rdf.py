@@ -3,6 +3,7 @@ import rdflib
 from rdflib import URIRef, BNode
 from rdflib.namespace import RDF
 from .static import REVERSE_PROPERTY
+import hashlib
 
 
 def URIRefDoi(pid):
@@ -80,11 +81,13 @@ def reverse(predicate_uri):
 
 
 class Graph(rdflib.Graph):
+
     def add_with_prov(self, triple, prov=None):
         """New method to add triple and include provenance metadata about the triple."""
         if prov is not None:
-            t = BNode()
             s, p, o = triple
+            triple_id = f"triple-{hashlib.sha256(f"{s}-{p}-{o}".encode()).hexdigest()}"
+            t = BNode(triple_id)
             self.add((t, RDF.type, RDF.Statement))
             self.add((t, RDF.subject, s))
             self.add((t, RDF.predicate, p))
