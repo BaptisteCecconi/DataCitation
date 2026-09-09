@@ -2,7 +2,12 @@
 from .rdf import shorten_doi
 from .static import DATACITE_DOIS_URL
 from .connect import get
+from .rdf import Graph, URIRefDoi, URIRefBibcode, URIRefArXiv
+from .namespaces import BIBLINK, DCITE
+from .mappings import RESOURCE_TYPE_SDO_DCMITYPE
 from typing import List, Dict
+from rdflib import URIRef, Literal, BNode
+from rdflib.namespace import PROV, DCTERMS, RDF, SDO, FOAF
 
 
 def get_single_doi(doi, api_url=DATACITE_DOIS_URL) -> Dict:
@@ -62,3 +67,110 @@ def check_datacite(src_uri, ref_uri):
             result["message"] = "Reference found in DataCite metadata."
             break
     return result
+
+
+def import_doi(doi: URIRef) -> Graph:
+    print(f"Found DOI: {str(doi)}")
+    metadata = get_single_doi(shorten_doi(doi))
+    return import_doi_metadata(metadata)
+
+
+def import_doi_metadata(metadata: Dict) -> Graph:
+    g = Graph()
+    doi = URIRefDoi(metadata["attributes"]["doi"].lower())
+    print(f"Found DOI: {str(doi)}")
+
+    # DataCite is the DOI metadata manager:
+    g.add((doi, PROV.wasInformedBy, Literal("DataCite")))
+    # ObsParis is the publisher:
+    g.add((doi, DCTERMS.publisher, Literal("ObsParis")))
+    # the PID is a DOI
+    g.add((doi, BIBLINK.scheme, Literal("doi")))
+    # the title:
+    g.add(
+        (
+            doi,
+            DCTERMS.title,
+            Literal(metadata["attributes"]["titles"][0]["title"]),
+        )
+    )
+    # the schema.org and DCMI types:
+    g.add((doi, RDF.type, SDO[metadata["attributes"]["types"]["schemaOrg"]]))
+    g.add(
+        (
+            doi,
+            RDF.type,
+            RESOURCE_TYPE_SDO_DCMITYPE[metadata["attributes"]["types"]["schemaOrg"]],
+        )
+    )
+
+    # Creators:
+    for creator in metadata["attributes"]["creators"]:
+        if len(creator["nameIdentifiers"]) > 0:
+            # if there is a NameIdentifier (ORCID)
+            creator_id = creator["nameIdentifiers"][0]["nameIdentifier"]
+            g.add((URIRef(creator_id), RDF.type, FOAF.Person))
+            g.add((URIRef(creator_id), FOAF.name, Literal(creator["name"])))
+            g.add((URIRef(creator_id), BIBLINK.scheme, Literal("orcid")))
+            g.add((doi, DCTERMS.creator, URIRef(creator_id)))
+        else:
+            tmp = BNode()
+            g.add((tmp, RDF.type, FOAF.Person))
+            g.add((tmp, FOAF.name, Literal(creator["name"])))
+            g.add((doi, DCTERMS.creator, tmp))
+
+    # Related Identifiers
+    for reference in metadata["attributes"]["relatedIdentifiers"]:
+        try:
+            related_id = reference["relatedIdentifier"].lower()
+        except KeyError:
+            print(reference)
+            continue
+        related_id_type = reference["relatedIdentifierType"].lower()
+        if related_id_type == "doi":
+            related_uri = URIRefDoi(related_id)
+        elif related_id_type == "bibcode":
+            related_uri = URIRefBibcode(related_id)
+        elif related_id_type == "arxiv":
+            related_uri = URIRefArXiv(related_id)
+        else:
+            related_uri = URIRef(related_id)
+        # print(doi, related_uri)
+        g.add_with_prov(
+            (doi, DCITE[reference["relationType"]], related_uri),
+            prov={PROV.wasInformedBy: Literal("ObsParis")},
+        )
+
+    # Citations
+    for citation in metadata["relationships"]["citations"]["data"]:
+        if citation["type"] == "dois":
+            related_doi = URIRefDoi(citation["id"])
+        else:
+            print(f"{citation['type']} citation type is not supported")
+            continue
+        g.add_with_prov(
+            (related_doi, DCITE.cites, doi),
+            prov={PROV.wasInformedBy: Literal("DataCite Commons")},
+        )
+    for part in metadata["relationships"]["parts"]["data"]:
+        if part["type"] == "dois":
+            related_doi = URIRefDoi(part["id"])
+        else:
+            print(f"{part['type']} citation type is not supported")
+            continue
+        g.add_with_prov(
+            (related_doi, DCITE.hasPart, doi),
+            prov={PROV.wasInformedBy: Literal("DataCite Commons")},
+        )
+    for part in metadata["relationships"]["partOf"]["data"]:
+        if part["type"] == "dois":
+            related_doi = URIRefDoi(part["id"])
+        else:
+            print(f"{part['type']} citation type is not supported")
+            continue
+        g.add_with_prov(
+            (related_doi, DCITE.isPartOf, doi),
+            prov={PROV.wasInformedBy: Literal("DataCite Commons")},
+        )
+
+    return g
