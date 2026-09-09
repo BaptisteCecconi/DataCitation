@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 from .namespaces import BIBLINK, VOREL, DCITE
-from .datacite import get_dois_from_prefix, get_single_doi, check_datacite
-from .mappings import RESOURCE_TYPE_SDO_DCMITYPE
+from .datacite import get_dois_from_prefix, check_datacite, import_doi, import_doi_metadata
 from .nasa_ads import get_nasa_ads
 from .doi import get_registration_agency
 from .static import DOI_PREFIX_PADC
 from .rdf import (
     URIRefDoi,
-    URIRefBibcode,
-    URIRefArXiv,
     Graph,
     shorten_doi,
 )
@@ -16,9 +13,9 @@ from .biblinks import get_biblinks
 from .openaire import get_scholexplorer, get_openaire_graph
 from .opencitations import get_opencitations
 from .crossref import get_datacitations, check_crossref
-from typing import List, Union, Dict
-from rdflib import Literal, URIRef, BNode
-from rdflib.namespace import RDF, DCTERMS, PROV, SDO, FOAF
+from typing import List, Dict
+from rdflib import Literal
+from rdflib.namespace import RDF, DCTERMS, PROV
 
 
 class Report(Graph):
@@ -26,14 +23,15 @@ class Report(Graph):
 
     def __init__(
         self,
-        doi: Union[str, List[str]] = None,
-        metadata: List[Dict] = None,
-        known_citations: List[str] = None,
+        doi: str | List[str] | None = None,
+        metadata: List[Dict] | None = None,
+        known_citations: List[str] | None = None,
     ):
         """Initialize the Report class.
 
         An instance must be initialized with a DOI or a list of DOIs, or the
         Datacite metadata extracted from the DOI or list of DOIs.
+
         :param doi:
         :param metadata:
         :param known_citations:
@@ -43,23 +41,20 @@ class Report(Graph):
         self.bind("vorel", VOREL)
         self.bind("dcite", DCITE)
 
-        self.known_citations = known_citations
-
-        try:
-            assert (doi is not None) or (metadata is not None)
-        except AssertionError:
-            raise AssertionError("doi or metadata must be provided")
-
-        if metadata is None:
+        if metadata is None and doi is not None:
             self.dois = doi
             for doi in self.dois:
-                doi_short = str(doi).replace("https://doi.org/", "")
-                self._import_doi_metadata(get_single_doi(doi_short))
-
-        if doi is None:
+                for triple in import_doi(doi):
+                    self.add(triple)
+        elif metadata is not None and doi is None:
             self.dois = [item["attributes"]["doi"].lower() for item in metadata]
             for md in metadata:
-                self._import_doi_metadata(md)
+                for triple in import_doi_metadata(md):
+                    self.add(triple)
+        else:
+            raise AttributeError("doi or metadata must be provided (exclusively)")
+
+        self.known_citations = known_citations
 
     @property
     def dois(self):
@@ -82,105 +77,30 @@ class Report(Graph):
         elif not isinstance(known_citations, list):
             known_citations = [known_citations]
         self._known_citations = [URIRefDoi(item) for item in known_citations]
+        self._import_known_citations()
 
     @classmethod
     def for_prefix(cls, doi_prefix=DOI_PREFIX_PADC):
         g = cls(metadata=get_dois_from_prefix(doi_prefix=doi_prefix))
         return g
 
-    def _import_doi_metadata(self, metadata):
-        doi = URIRefDoi(metadata["attributes"]["doi"].lower())
-        print(f"Found DOI: {str(doi)}")
-        # DataCite is the DOI metadata manager:
-        self.add((doi, PROV.wasInformedBy, Literal("DataCite")))
-        # ObsParis is the publisher:
-        self.add((doi, DCTERMS.publisher, Literal("ObsParis")))
-        # the PID is a DOI
-        self.add((doi, BIBLINK.scheme, Literal("doi")))
-        # the title:
-        self.add(
-            (
-                doi,
-                DCTERMS.title,
-                Literal(metadata["attributes"]["titles"][0]["title"]),
-            )
-        )
-        # the schema.org and DCMI types:
-        self.add((doi, RDF.type, SDO[metadata["attributes"]["types"]["schemaOrg"]]))
-        self.add(
-            (
-                doi,
-                RDF.type,
-                RESOURCE_TYPE_SDO_DCMITYPE[metadata["attributes"]["types"]["schemaOrg"]],
-            )
-        )
+    def _import_known_citations(self):
+        for doi in self.known_citations:
+            print(f"Importing metadata for DOI: {str(doi)}")
+            ra = get_registration_agency(doi)
+            if ra == "Datacite":
+                from .datacite import import_doi as datacite_import_doi
 
-        # Creators:
-        for creator in metadata["attributes"]["creators"]:
-            if len(creator["nameIdentifiers"]) > 0:
-                # if there is a NameIdentifier (ORCID)
-                creator_id = creator["nameIdentifiers"][0]["nameIdentifier"]
-                self.add((URIRef(creator_id), RDF.type, FOAF.Person))
-                self.add((URIRef(creator_id), FOAF.name, Literal(creator["name"])))
-                self.add((URIRef(creator_id), BIBLINK.scheme, Literal("orcid")))
-                self.add((doi, DCTERMS.creator, URIRef(creator_id)))
-            else:
-                tmp = BNode()
-                self.add((tmp, RDF.type, FOAF.Person))
-                self.add((tmp, FOAF.name, Literal(creator["name"])))
-                self.add((doi, DCTERMS.creator, tmp))
+                triples = datacite_import_doi(doi)
+            elif ra == "Crossref":
+                from .crossref import import_doi as crossref_import_doi
 
-        for reference in metadata["attributes"]["relatedIdentifiers"]:
-            try:
-                related_id = reference["relatedIdentifier"].lower()
-            except KeyError:
-                print(reference)
-                continue
-            related_id_type = reference["relatedIdentifierType"].lower()
-            if related_id_type == "doi":
-                related_uri = URIRefDoi(related_id)
-            elif related_id_type == "bibcode":
-                related_uri = URIRefBibcode(related_id)
-            elif related_id_type == "arxiv":
-                related_uri = URIRefArXiv(related_id)
+                triples = crossref_import_doi(doi)
             else:
-                related_uri = URIRef(related_id)
-            # print(doi, related_uri)
-            self.add_with_prov(
-                (doi, DCITE[reference["relationType"]], related_uri),
-                prov={PROV.wasInformedBy: Literal("ObsParis")},
-            )
-
-        for citation in metadata["relationships"]["citations"]["data"]:
-            if citation["type"] == "dois":
-                related_doi = URIRefDoi(citation["id"])
-            else:
-                print(f"{citation['type']} citation type is not supported")
-                continue
-            self.add_with_prov(
-                (related_doi, DCITE.cites, doi),
-                prov={PROV.wasInformedBy: Literal("DataCite Commons")},
-            )
-        for part in metadata["relationships"]["parts"]["data"]:
-            if part["type"] == "dois":
-                related_doi = URIRefDoi(part["id"])
-            else:
-                print(f"{citation['type']} citation type is not supported")
-                continue
-            self.add_with_prov(
-                (related_doi, DCITE.hasPart, doi),
-                prov={PROV.wasInformedBy: Literal("DataCite Commons")},
-            )
-        for part in metadata["relationships"]["partOf"]["data"]:
-            if part["type"] == "dois":
-                related_doi = URIRefDoi(part["id"])
-            else:
-                print(f"{citation['type']} citation type is not supported")
-                continue
-            self.add_with_prov(
-                (related_doi, DCITE.isPartOf, doi),
-                prov={PROV.wasInformedBy: Literal("DataCite Commons")},
-            )
+                raise AttributeError(f"Unknown registration agency {ra}")
+            for triple in triples:
+                self.add(triple)
+            self.add_with_prov((doi, DCITE["cites"], self.dois[0]), prov={PROV.wasInformedBy: Literal("Curator")})
 
     def pids_from_publisher(self, publisher):
         """select PIDs from a publisher"""
@@ -191,30 +111,40 @@ class Report(Graph):
         return pids
 
     def _include_external_source(self, source, publisher):
+        """Include triples from an external source.
+
+        :param source: a function to get the list of triples
+        :param publisher: the publisher"""
         for pid in self.pids_from_publisher(publisher):
             for triple in source(pid):
                 self.add(triple)
 
     def include_biblinks(self, publisher="ObsParis"):
+        """Include biblinks triples for PIDs of a publisher."""
         self._include_external_source(get_biblinks, publisher=publisher)
 
     def include_scholexplorer(self, publisher="ObsParis"):
+        """Include scholexplorer triples for PIDs of a publisher."""
         self._include_external_source(get_scholexplorer, publisher=publisher)
 
     def include_openaire_graph(self, publisher="ObsParis"):
+        """Include openaire graphs triples for PIDs of a publisher."""
         self._include_external_source(get_openaire_graph, publisher=publisher)
 
     def include_opencitations(self, publisher="ObsParis"):
+        """Include opencitations triples for PIDs of a publisher."""
         self._include_external_source(get_opencitations, publisher=publisher)
 
     #    def include_crossref_eventdata(self, publisher="ObsParis"):
     #        return self._include_external_source(get_eventdata, publisher=publisher)
 
     def include_crossref_datacitations(self, publisher="ObsParis"):
-        return self._include_external_source(get_datacitations, publisher=publisher)
+        """Include crossref datacitations triples for PIDs of a publisher."""
+        self._include_external_source(get_datacitations, publisher=publisher)
 
     def include_nasa_ads(self, publisher="ObsParis"):
-        return self._include_external_source(get_nasa_ads, publisher=publisher)
+        """Include NASA ADS triples for PIDs of a publisher."""
+        self._include_external_source(get_nasa_ads, publisher=publisher)
 
     def export_citations(self, doi=None, format="md", filename=None):
 
@@ -305,13 +235,19 @@ WHERE {
         citing_predicates = {
             DCITE.cites: "cites",
             DCITE.isPartOf: "is part of",
+            DCITE.IsPartOf: "is part of",
             DCITE.hasPart: "has part",
+            DCITE.haspart: "has part",
             DCITE.HasPart: "has part",
             DCITE.documents: "documents",
             DCITE.IsDocumentedBy: "is documented by",
             DCITE.issourceof: "is source of",
-            DCITE.IsDerivedFrom: "is derived from",
+            DCITE.IsDerivedFrom: "was derived from",
+            DCITE.IsDescribedBy: "is described by",
             DCITE.references: "references",
+            DCITE.obsoletes: "obsoletes",
+            DCITE.IsObsoletedBy: "is obsoleted by",
+            DCITE.isnewversionof: "is new version of",
             DCTERMS.references: "references",
             VOREL.Cites: "cites",
             VOREL.IsSupplementedBy: "is supplemented by",
