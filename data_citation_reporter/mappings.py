@@ -1,4 +1,4 @@
-from rdflib.namespace import DCMITYPE
+from rdflib.namespace import DCMITYPE, SDO
 from .namespaces import DCITE
 
 # mapping from Schema.org to DCMIType:
@@ -18,6 +18,10 @@ CROSSREF_RELATIONS = {
     "references": DCITE["references"],
     "cites": DCITE["cites"],
     "is_part_of": DCITE["isPartOf"],
+}
+
+CROSSREF_TYPES = {
+    "journal-article": SDO.ScholarlyArticle,
 }
 
 OPENAIRE_SCHEMAS = {"datacite": DCITE}
