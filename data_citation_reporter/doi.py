@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
+"""Module for handling DOI interfaces."""
+
 from typing import Union
+
+from rdflib import URIRef
+
 from .static import DOI_RA_URL
 from .rdf import shorten_doi, URIRefDoi
 from .connect import get
-from rdflib import URIRef
 
 
-def get_registration_agency(
-    uri: Union[str, URIRef], api_url: str = DOI_RA_URL
-) -> str:
+def get_registration_agency(uri: Union[str, URIRef], api_url: str = DOI_RA_URL) -> str:
     """Retrieve the registration agency from DOI.
 
     :param uri: URI of the DOI (URIRef object or str).
@@ -21,9 +23,9 @@ def get_registration_agency(
     data = get(access_url)
     if data is None:
         raise RuntimeError(f"Could not get data from {access_url}")
-    else:
-        data = data[0]
-        if "RA" not in data.keys():
-            raise ValueError(f"{data['status']}: {str(uri)}")
-        else:
-            return data["RA"]
+
+    data = data[0]
+    if "RA" not in data.keys():
+        raise ValueError(f"{data['status']}: {str(uri)}")
+
+    return data["RA"]

@@ -1,14 +1,22 @@
 # -*- coding: utf-8 -*-
+"""Module for handling OpenCitation interfaces."""
+
+from rdflib import Literal
+from rdflib.namespace import DCTERMS, PROV
+
 from .static import OPENCITATIONS_URL
 from .namespaces import BIBLINK
 from .rdf import Graph, URIRefDoi
 from .connect import get
-from rdflib import Literal
-from rdflib.namespace import DCTERMS, PROV
 
 
 def get_opencitations(pid, api_url=OPENCITATIONS_URL):
+    """Get citation data from OpenCitations API.
 
+    :param pid: Persistent identifier
+    :param api_url: OpenCitations API URL (defaults to OPENCITATIONS_URL)
+    :return: citation data as a Graph object
+    """
     g = Graph()
     doi = str(pid).replace("https://doi.org/", "")
 
@@ -20,9 +28,7 @@ def get_opencitations(pid, api_url=OPENCITATIONS_URL):
     print(f"{doi}: {len(data)}")
     if len(data) > 0:
         citation_set = set((item["citing"], "doi") for item in data)
-        print(
-            f"citing: {', '.join([f'doi:{cite_item[0]}' for cite_item in citation_set])}"
-        )
+        print(f"citing: {', '.join([f'doi:{cite_item[0]}' for cite_item in citation_set])}")
 
         src_pid = URIRefDoi(doi)
         for identifier, schema in citation_set:

@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
+"""Module for handling IVOA Biblinks."""
+
+from rdflib import Literal, URIRef
+from rdflib.namespace import PROV
+
 from .connect import get
 from .static import BIBLINKS_URL
 from .rdf import URIRefBibcode, URIRefDoi, Graph
 from .namespaces import VOREL, BIBLINK
-from rdflib import Literal, URIRef
-from rdflib.namespace import PROV
 
 
 def get_biblinks(pid: URIRef, access_url: str = BIBLINKS_URL) -> Graph:
@@ -33,7 +36,7 @@ def get_biblinks(pid: URIRef, access_url: str = BIBLINKS_URL) -> Graph:
         elif pid_type == "doi":
             bib_pid = URIRefDoi(bib_ref)
         else:
-            raise ValueError("Unknown bib-format: {}".format(pid_type))
+            raise ValueError(f"Unknown bib-format: {pid_type}")
 
         subj = bib_pid
         pred = VOREL[relation]

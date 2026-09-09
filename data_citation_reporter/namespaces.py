@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+"""Utility module for storing namespaces."""
+
 from rdflib import Namespace
 
 BIBLINK = Namespace("http://www.ivoa.net/rdf/biblink#")

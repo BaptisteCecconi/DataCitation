@@ -1,11 +1,13 @@
-from .namespaces import DCITE
+# -*- coding: utf-8 -*-
+"""Utility module for static values."""
+
 from rdflib.namespace import DCTERMS
+
+from .namespaces import DCITE
 
 DOI_PREFIX_PADC = "10.25935"
 
-BIBLINKS_URL = (
-    "http://voparis-tap-maser.obspm.fr/__system__/biblinks/links/biblinks.json"
-)
+BIBLINKS_URL = "http://voparis-tap-maser.obspm.fr/__system__/biblinks/links/biblinks.json"
 SCHOLEXPLORER_V1_URL = "http://api.scholexplorer.openaire.eu/v1/linksFromPid"
 OPENAIREGRAPH_V1_URL = "https://api.openaire.eu/graph/v1/researchProducts/links"
 OPENCITATIONS_URL = "http://opencitations.net/index/api/v1"

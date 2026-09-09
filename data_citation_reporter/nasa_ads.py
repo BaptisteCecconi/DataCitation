@@ -1,25 +1,29 @@
 # -*- coding: utf-8 -*-
-from rdflib import Literal, URIRef
-from .rdf import shorten_doi, Graph, URIRefDoi
-from rdflib.namespace import DCTERMS, PROV
-from .connect import get
+"""Module for handling NASA ADS/SciX interfaces."""
+
 from urllib.parse import urlencode
-import yaml
 from pathlib import Path
 
+import yaml
+from rdflib import Literal, URIRef
+from rdflib.namespace import DCTERMS, PROV
+
+from .rdf import shorten_doi, Graph, URIRefDoi
+from .connect import get
+
 token_file = Path(__file__).parent.parent / "tokens.yaml"
-with open(token_file) as f:
-    token = yaml.load(f, Loader=yaml.FullLoader)
+with open(token_file, encoding="utf-8") as f:
+    token_data = yaml.load(f, Loader=yaml.FullLoader)
 
-TOKEN = token["ads"]
+TOKEN = token_data["ads"]
 
-api_url = "https://api.adsabs.harvard.edu/v1"
+API_URL = "https://api.adsabs.harvard.edu/v1"
 
 
 def get_nasa_ads(
     uri: URIRef,
-    method: str = "full",
-    api_url: str = api_url,
+    #    method: str = "full",
+    api_url: str = API_URL,
     token: str = TOKEN,
 ) -> Graph:
     """Get citations from NASA ADS

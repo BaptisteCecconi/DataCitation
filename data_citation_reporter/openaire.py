@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
+"""Module for handling OpenAire interfaces."""
+
+from rdflib import URIRef, Literal
+from rdflib.namespace import DCTERMS, PROV
+
 from .connect import get
 from .static import SCHOLEXPLORER_V1_URL, OPENAIREGRAPH_V1_URL
 from .namespaces import BIBLINK
 from .mappings import OPENAIRE_SCHEMAS
 from .rdf import URIRefDoi, URIRefArXiv, Graph
-from rdflib import URIRef, Literal
-from rdflib.namespace import DCTERMS, PROV
 
 # OpenAire APIs:
 # - Scholexplorer
@@ -13,7 +16,12 @@ from rdflib.namespace import DCTERMS, PROV
 
 
 def get_scholexplorer(pid, api_url=SCHOLEXPLORER_V1_URL):
+    """Get citation data from OpenAire Scholexplorer API.
 
+    :param pid: Persistent identifier
+    :param api_url: Openaire Scholexplorer API URL (defaults to SCHOLEXPLORER_V1_URL)
+    :return: citation data as a Graph object
+    """
     g = Graph()
 
     doi = str(pid).replace("https://doi.org/", "")
@@ -66,7 +74,12 @@ def get_scholexplorer(pid, api_url=SCHOLEXPLORER_V1_URL):
 
 # https://api.openaire.eu/graph/v1/researchProducts/links?targetPid=10.25935%2Fnhb2-wy29&page=0&pageSize=100
 def get_openaire_graph(pid, api_url=OPENAIREGRAPH_V1_URL):
+    """Get citation data from OpenAire Graph API.
 
+    :param pid: Persistent identifier
+    :param api_url: OpenAire Graph API URL (defaults to OPENAIREGRAPH_V1_URL)
+    :return: citation data as a Graph object
+    """
     g = Graph()
 
     doi = str(pid).replace("https://doi.org/", "")
@@ -75,6 +88,7 @@ def get_openaire_graph(pid, api_url=OPENAIREGRAPH_V1_URL):
     data = get(access_url)
     if data is None:
         return g
+
     data = data["results"]
     print(f"{doi}: {len(data)}")
     if len(data) > 0:
@@ -89,7 +103,7 @@ def get_openaire_graph(pid, api_url=OPENAIREGRAPH_V1_URL):
                 relation = OPENAIRE_SCHEMAS[item["relType"]["typeSchema"]][item["relType"]["name"]]
                 provenance = item["provenance"]
 
-                provenance = "OpenAIRE Graph" + f" (via {", ".join([prov for prov in provenance])})"
+                provenance = "OpenAIRE Graph (via " + ", ".join(provenance) + ")"
 
                 # citation_set.add((source_pid, relation, provenance))
                 print(f"{source_pid} {relation} {doi} ({provenance})")

@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+"""Module for handling CrossRef interfaces."""
+
+from typing import Dict
+
+from thefuzz import fuzz
+from rdflib import URIRef, Literal, BNode
+from rdflib.namespace import PROV, DCTERMS, RDF, FOAF
+
 from .static import (
     CROSSREF_DATACITATIONS_URL,
     CROSSREF_WORKS_URL,
@@ -7,9 +15,6 @@ from .mappings import CROSSREF_RELATIONS, CROSSREF_TYPES
 from .rdf import URIRefDoi, shorten_doi, Graph
 from .namespaces import BIBLINK
 from .connect import get
-from typing import Dict
-from rdflib import URIRef, Literal, BNode
-from rdflib.namespace import PROV, DCTERMS, RDF, FOAF
 
 
 def get_single_doi(doi: URIRef) -> Dict:
@@ -21,8 +26,7 @@ def get_single_doi(doi: URIRef) -> Dict:
     data = get(access_url)
     if data is None:
         return {}
-    else:
-        return data["message"]
+    return data["message"]
 
 
 # def get_eventdata(pid, api_url=CROSSREF_EVENTDATA_URL):
@@ -47,7 +51,8 @@ def get_single_doi(doi: URIRef) -> Dict:
 #                     item = (source_pid, 'pid')
 #                     break
 #                 citation_set.add(item)
-#             print(f"citing: {', '.join([f'{cite_item[1]}:{cite_item[0]}' for cite_item in citation_set])}")
+#             print(f"citing: {', '.join([f'{cite_item[1]}:{cite_item[0]}'
+#             for cite_item in citation_set])}")
 #
 #             src_pid = URIRef(f"https://doi.org/{doi}".lower())
 #             # dirty fix:
@@ -70,6 +75,12 @@ def get_single_doi(doi: URIRef) -> Dict:
 
 
 def get_datacitations(pid: URIRef, api_url=CROSSREF_DATACITATIONS_URL):
+    """Get citation data from CrossRef DataCitations API.
+
+    :param pid: Persistent identifier
+    :param api_url: Openaire Scholexplorer API URL (defaults to CROSSREF_DATACITATIONS_URL)
+    :return: citation data as a Graph object
+    """
     g = Graph()
     doi = shorten_doi(pid)
     access_url = f"{api_url}?object-id={doi}"
@@ -80,15 +91,15 @@ def get_datacitations(pid: URIRef, api_url=CROSSREF_DATACITATIONS_URL):
         print(f"{doi}: {ndata}")
         if ndata > 0:
             for item in data["message"]["items"]:
-                subject = item["subject"]["id"]
-                object = item["object"]["id"]
+                subj = item["subject"]["id"]
+                obj = item["object"]["id"]
                 relation = item["relation"]
-                print(f"{subject} {relation} {object}")
+                print(f"{subj} {relation} {obj}")
                 g.add_with_prov(
                     (
-                        URIRefDoi(subject),
+                        URIRefDoi(subj),
                         CROSSREF_RELATIONS[relation],
-                        URIRefDoi(object),
+                        URIRefDoi(obj),
                     ),
                     prov={PROV.wasInformedBy: Literal("CrossRef DataCitations")},
                 )
@@ -97,7 +108,14 @@ def get_datacitations(pid: URIRef, api_url=CROSSREF_DATACITATIONS_URL):
 
 
 def check_crossref(src_uri, ref_uri, ref_title, api_url="https://api.crossref.org/works/"):
-    from thefuzz import fuzz
+    """Check if a URI is present a CrossRef DOI metadata record.
+
+    :param src_uri: Source DOI
+    :param ref_uri: Reference URI (possibly DOI)
+    :param ref_title: Reference title
+    :param api_url: Openaire Scholexplorer API URL (defaults to "https://api.crossref.org/works/")
+    :return: a dictionary with the status.
+    """
 
     src_doi = shorten_doi(src_uri)
     ref_doi = shorten_doi(ref_uri)
@@ -126,31 +144,40 @@ def check_crossref(src_uri, ref_uri, ref_title, api_url="https://api.crossref.or
                             result["message"] = f"Found {ref_doi} in {k} reference"
                             result["status"] = 1
                             break
-                        elif ref_title.lower() in v.lower():
+                        if ref_title.lower() in v.lower():
                             result["found"] = True
                             result["reference"] = reference
                             result["message"] = f"Found title of {ref_doi} in {k} reference"
                             result["status"] = 1
                             break
-                        else:
-                            title = v.lower()
-                            ratio = fuzz.ratio(ref_title, title)
-                            if ratio > 70:
-                                result["found"] = True
-                                result["reference"] = reference
-                                result["message"] = f"Detected title of {ref_doi} in {k} reference ({ratio}%)"
-                                result["status"] = 1
+                        title = v.lower()
+                        ratio = fuzz.ratio(ref_title, title)
+                        if ratio > 70:
+                            result["found"] = True
+                            result["reference"] = reference
+                            result["message"] = f"Detected title of {ref_doi} in {k} reference ({ratio}%)"
+                            result["status"] = 1
 
     return result
 
 
 def import_doi(doi: URIRef) -> Graph:
+    """Import CrossRef DOI metadata
+
+    :param doi: DOI
+    :return: Graph object with DOI metadata
+    """
     print(f"Found DOI: {str(doi)}")
     metadata = get_single_doi(shorten_doi(doi))
-    return import_doi_metadata(metadata)
+    return parse_doi_metadata_to_graph(metadata)
 
 
-def import_doi_metadata(metadata: Dict) -> Graph:
+def parse_doi_metadata_to_graph(metadata: Dict) -> Graph:
+    """Parse CrossRef DOI metadata into Graph object.
+
+    :param metadata: DOI metadata
+    :return: Graph object with DOI metadata
+    """
     g = Graph()
     doi = URIRefDoi(metadata["DOI"].lower())
     print(f"Found DOI: {str(doi)}")

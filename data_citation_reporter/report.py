@@ -1,21 +1,25 @@
 # -*- coding: utf-8 -*-
-from .namespaces import BIBLINK, VOREL, DCITE
-from .datacite import get_dois_from_prefix, check_datacite, import_doi, import_doi_metadata
-from .nasa_ads import get_nasa_ads
-from .doi import get_registration_agency
-from .static import DOI_PREFIX_PADC
-from .rdf import (
-    URIRefDoi,
-    Graph,
-    shorten_doi,
-)
-from .biblinks import get_biblinks
-from .openaire import get_scholexplorer, get_openaire_graph
-from .opencitations import get_opencitations
-from .crossref import get_datacitations, check_crossref
+"""Module for handling reports."""
+
+from io import StringIO
+from pathlib import Path
 from typing import List, Dict
+
 from rdflib import Literal
 from rdflib.namespace import RDF, DCTERMS, PROV
+
+from .biblinks import get_biblinks
+from .crossref import get_datacitations, check_crossref
+from .crossref import import_doi as crossref_import_doi
+from .datacite import get_dois_from_prefix, check_datacite, import_doi, parse_doi_metadata_to_graph
+from .datacite import import_doi as datacite_import_doi
+from .doi import get_registration_agency
+from .namespaces import BIBLINK, VOREL, DCITE
+from .nasa_ads import get_nasa_ads
+from .openaire import get_scholexplorer, get_openaire_graph
+from .opencitations import get_opencitations
+from .rdf import URIRefDoi, Graph, shorten_doi
+from .static import DOI_PREFIX_PADC
 
 
 class Report(Graph):
@@ -43,13 +47,13 @@ class Report(Graph):
 
         if metadata is None and doi is not None:
             self.dois = doi
-            for doi in self.dois:
-                for triple in import_doi(doi):
+            for item in self.dois:
+                for triple in import_doi(item):
                     self.add(triple)
         elif metadata is not None and doi is None:
             self.dois = [item["attributes"]["doi"].lower() for item in metadata]
             for md in metadata:
-                for triple in import_doi_metadata(md):
+                for triple in parse_doi_metadata_to_graph(md):
                     self.add(triple)
         else:
             raise AttributeError("doi or metadata must be provided (exclusively)")
@@ -58,20 +62,24 @@ class Report(Graph):
 
     @property
     def dois(self):
+        """Get list of DOIs"""
         return self._dois
 
     @dois.setter
     def dois(self, dois):
+        """Set list of DOIs"""
         if not isinstance(dois, list):
             dois = [dois]
         self._dois = [URIRefDoi(doi) for doi in dois]
 
     @property
     def known_citations(self):
+        """Get list of known citations"""
         return self._known_citations
 
     @known_citations.setter
     def known_citations(self, known_citations):
+        """Set list of known citations"""
         if known_citations is None:
             known_citations = []
         elif not isinstance(known_citations, list):
@@ -81,20 +89,18 @@ class Report(Graph):
 
     @classmethod
     def for_prefix(cls, doi_prefix=DOI_PREFIX_PADC):
+        """Class method to return a Report object for a given DOI prefix"""
         g = cls(metadata=get_dois_from_prefix(doi_prefix=doi_prefix))
         return g
 
     def _import_known_citations(self):
+        """Import known citations"""
         for doi in self.known_citations:
             print(f"Importing metadata for DOI: {str(doi)}")
             ra = get_registration_agency(doi)
             if ra == "Datacite":
-                from .datacite import import_doi as datacite_import_doi
-
                 triples = datacite_import_doi(doi)
             elif ra == "Crossref":
-                from .crossref import import_doi as crossref_import_doi
-
                 triples = crossref_import_doi(doi)
             else:
                 raise AttributeError(f"Unknown registration agency {ra}")
@@ -146,22 +152,26 @@ class Report(Graph):
         """Include NASA ADS triples for PIDs of a publisher."""
         self._include_external_source(get_nasa_ads, publisher=publisher)
 
-    def export_citations(self, doi=None, format="md", filename=None):
+    def export_citations(self, doi=None, file_format="md", filename=None):
+        """Export citation data for given DOI.
+
+        :param doi: DOI to export
+        :param file_format: format to export (defaults to 'md')
+        :param filename: filename to export to
+        """
 
         if filename is None:
-            from io import StringIO
-
             f = StringIO()
         else:
-            from pathlib import Path
-
             Path(filename).parent.mkdir(parents=True, exist_ok=True)
-            f = open(filename, "w")
+            f = open(filename, "w", encoding="utf-8")
 
         if (doi is None) and (len(self.dois) > 1):
             raise ValueError("doi must be provided")
-        else:
-            doi = self.dois[0]
+
+        if file_format != "md":
+            raise ValueError("file_format must be 'md'")
+        doi = self.dois[0]
 
         citing_pids = set()
         # if filename is None:
@@ -179,7 +189,7 @@ class Report(Graph):
             ("product type", RDF.type, lambda x: str(x).split("/")[-1]),
         ]
         for item_name, item_property, item_process in doi_metadata:
-            items = set([item_process(x) for x in self.objects(doi, item_property, unique=True)])
+            items = {item_process(x) for x in self.objects(doi, item_property, unique=True)}
             for item in items:
                 f.write(f" - **{item_name}**: {item}\n")
 

@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
+"""Module for handling DataCite interfaces."""
+
+from typing import List, Dict
+
+from rdflib import URIRef, Literal, BNode
+from rdflib.namespace import PROV, DCTERMS, RDF, SDO, FOAF
+
 from .rdf import shorten_doi
 from .static import DATACITE_DOIS_URL
 from .connect import get
 from .rdf import Graph, URIRefDoi, URIRefBibcode, URIRefArXiv
 from .namespaces import BIBLINK, DCITE
 from .mappings import RESOURCE_TYPE_SDO_DCMITYPE
-from typing import List, Dict
-from rdflib import URIRef, Literal, BNode
-from rdflib.namespace import PROV, DCTERMS, RDF, SDO, FOAF
 
 
 def get_single_doi(doi, api_url=DATACITE_DOIS_URL) -> Dict:
@@ -20,8 +24,7 @@ def get_single_doi(doi, api_url=DATACITE_DOIS_URL) -> Dict:
     data = get(access_url)
     if data is None:
         return {}
-    else:
-        return data["data"]
+    return data["data"]
 
 
 def get_dois_from_prefix(doi_prefix: str, api_url=DATACITE_DOIS_URL) -> List:
@@ -49,6 +52,12 @@ def get_dois_from_prefix(doi_prefix: str, api_url=DATACITE_DOIS_URL) -> List:
 
 
 def check_datacite(src_uri, ref_uri):
+    """Check if a URI is present a DataCite DOI metadata record.
+
+    :param src_uri: Source DOI
+    :param ref_uri: Reference URI (possibly DOI)
+    :return: a dictionary with the status.
+    """
     src_doi = shorten_doi(src_uri)
     ref_doi = shorten_doi(ref_uri)
 
@@ -70,12 +79,22 @@ def check_datacite(src_uri, ref_uri):
 
 
 def import_doi(doi: URIRef) -> Graph:
+    """Import Datacite DOI metadata
+
+    :param doi: DOI
+    :return: Graph object with DOI metadata
+    """
     print(f"Found DOI: {str(doi)}")
     metadata = get_single_doi(shorten_doi(doi))
-    return import_doi_metadata(metadata)
+    return parse_doi_metadata_to_graph(metadata)
 
 
-def import_doi_metadata(metadata: Dict) -> Graph:
+def parse_doi_metadata_to_graph(metadata: Dict) -> Graph:
+    """Parse Datacite DOI metadata into Graph object.
+
+    :param metadata: DOI metadata
+    :return: Graph object with DOI metadata
+    """
     g = Graph()
     doi = URIRefDoi(metadata["attributes"]["doi"].lower())
     print(f"Found DOI: {str(doi)}")

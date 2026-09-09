@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+"""Utility module for storing mappings."""
+
 from rdflib.namespace import DCMITYPE, SDO
 from .namespaces import DCITE
 

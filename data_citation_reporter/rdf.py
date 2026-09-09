@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
+# pylint: disable=C0103
+"""Utility module for enhancing RDFlib."""
+
+import hashlib
+
 import rdflib
 from rdflib import URIRef, BNode
 from rdflib.namespace import RDF
+
 from .static import REVERSE_PROPERTY
-import hashlib
 
 
 def URIRefDoi(pid):
@@ -36,6 +41,12 @@ def URIRefDoi(pid):
 
 
 def shorten_doi(uri):
+    """Shorten a DOI URI.
+
+    Removes the URL part of the input DOI, keeping only the prefix and suffix parts.
+    :param uri: DOI URI
+    :return: shortened DOI URI
+    """
     return str(uri).replace("https://doi.org/", "")
 
 
@@ -81,6 +92,7 @@ def reverse(predicate_uri):
 
 
 class Graph(rdflib.Graph):
+    """Graph class, with extra .add_with_prov() method."""
 
     def add_with_prov(self, triple, prov=None):
         """New method to add triple and include provenance metadata about the triple."""
