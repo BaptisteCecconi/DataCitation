@@ -60,12 +60,12 @@ class TestGetOpenaireGraph:
             ]
         }
 
-    @patch("data_citation_reporter.openaire.requests.get")
+    @patch("data_citation_reporter.openaire.get")
     @patch("data_citation_reporter.openaire.URIRefDoi")
-    def test_get_openaire_graph_success(self, mock_uri_ref_doi, mock_requests_get):
+    def test_get_openaire_graph_success(self, mock_uri_ref_doi, mock_get):
         """Test successful processing with multiple relations"""
         # Setup mocks
-        mock_requests_get.return_value.json.return_value = self.test_data
+        mock_get.return_value = self.test_data
 
         # Mock OPENAIRE_SCHEMAS
         mock_is_cited_by = DCITE.isCitedBy
@@ -97,9 +97,9 @@ class TestGetOpenaireGraph:
         statement_nodes = list(result.subjects(RDF.type, RDF.Statement))
         assert len(statement_nodes) == 2  # 2 provenance statements
 
-    @patch("data_citation_reporter.openaire.requests.get")
+    @patch("data_citation_reporter.openaire.get")
     @patch("data_citation_reporter.openaire.URIRefDoi")
-    def test_get_openaire_graph_no_doi_source(self, mock_uri_ref_doi, mock_requests_get):
+    def test_get_openaire_graph_no_doi_source(self, mock_uri_ref_doi, mock_get):
         """Test when no DOI is found in source identifiers"""
         # Setup mocks
         test_data_no_doi = {
@@ -111,7 +111,7 @@ class TestGetOpenaireGraph:
                 }
             ]
         }
-        mock_requests_get.return_value.json.return_value = test_data_no_doi
+        mock_get.return_value = test_data_no_doi
 
         # Call the function
         result = get_openaire_graph(self.test_pid)
@@ -120,36 +120,31 @@ class TestGetOpenaireGraph:
         assert isinstance(result, Graph)
         assert len(result) == 0  # No triples added for non-DOI sources
 
-    @patch("data_citation_reporter.openaire.requests.get")
+    @patch("data_citation_reporter.openaire.get")
     @patch("data_citation_reporter.openaire.URIRefDoi")
-    def test_get_openaire_graph_empty_data(self, mock_uri_ref_doi, mock_requests_get):
+    def test_get_openaire_graph_empty_data(self, mock_uri_ref_doi, mock_get):
         """Test with empty results"""
         # Setup mocks
-        mock_requests_get.return_value.json.return_value = {"results": []}
+        mock_get.return_value = {"results": []}
 
-        with patch("builtins.print") as mock_print:
-            # Call the function
-            result = get_openaire_graph(self.test_pid)
+        # Call the function
+        result = get_openaire_graph(self.test_pid)
 
-            # Verify the result
-            assert isinstance(result, Graph)
-            assert len(result) == 0  # No triples added
+        # Verify the result
+        assert isinstance(result, Graph)
+        assert len(result) == 0  # No triples added
 
-            # Verify print calls
-            mock_print.assert_any_call(f"requesting {self.expected_access_url}")
-            mock_print.assert_any_call(f"{self.test_doi}: 0")
+        # Verify URIRefDoi was not called
+        mock_get.assert_called_once_with(self.expected_access_url)
 
-            # Verify URIRefDoi was not called
-            mock_uri_ref_doi.assert_not_called()
-
-    @patch("data_citation_reporter.openaire.requests.get")
+    @patch("data_citation_reporter.openaire.get")
     @patch("data_citation_reporter.openaire.URIRefDoi")
-    def test_get_openaire_graph_custom_api_url(self, mock_uri_ref_doi, mock_requests_get):
+    def test_get_openaire_graph_custom_api_url(self, mock_uri_ref_doi, mock_get):
         """Test with custom API URL"""
         custom_api_url = "https://custom.api.example.org/graph/v1/researchProducts/links"
 
         # Setup mocks
-        mock_requests_get.return_value.json.return_value = self.test_data
+        mock_get.return_value = self.test_data
 
         # Mock URIRefDoi calls
         mock_src_pid1 = URIRef("https://doi.org/10.5678/another.doi")

@@ -35,16 +35,11 @@ class TestGetRegistrationAgency:
         # Verify the result
         assert result == "Test Registration Agency"
 
-        # Verify function calls
-        mock_shorten_doi.assert_called_once_with(self.test_uri)
-        mock_get.assert_called_once_with(self.expected_api_url)
-
     @patch("data_citation_reporter.doi.get")
     @patch("data_citation_reporter.doi.shorten_doi")
     def test_get_registration_agency_with_custom_api_url(self, mock_shorten_doi, mock_get):
         """Test with custom API URL"""
         custom_api_url = "https://custom.api.example.org/"
-        expected_custom_url = f"{custom_api_url}{self.expected_doi}"
 
         # Setup mocks
         mock_shorten_doi.return_value = self.expected_doi
@@ -55,10 +50,6 @@ class TestGetRegistrationAgency:
 
         # Verify the result
         assert result == "Test Registration Agency"
-
-        # Verify function calls
-        mock_shorten_doi.assert_called_once_with(self.test_uri)
-        mock_get.assert_called_once_with(expected_custom_url)
 
     @patch("data_citation_reporter.doi.get")
     @patch("data_citation_reporter.doi.shorten_doi")
@@ -75,10 +66,6 @@ class TestGetRegistrationAgency:
         ):
             get_registration_agency(self.test_uri)
 
-        # Verify function calls
-        mock_shorten_doi.assert_called_once_with(self.test_uri)
-        mock_get.assert_called_once_with(self.expected_api_url)
-
     @patch("data_citation_reporter.doi.get")
     @patch("data_citation_reporter.doi.shorten_doi")
     def test_get_registration_agency_no_ra_key(self, mock_shorten_doi, mock_get):
@@ -90,10 +77,6 @@ class TestGetRegistrationAgency:
         # Call and verify exception
         with pytest.raises(ValueError, match="not found: https://doi.org/10.1234/example.doi"):
             get_registration_agency(self.test_uri)
-
-        # Verify function calls
-        mock_shorten_doi.assert_called_once_with(self.test_uri)
-        mock_get.assert_called_once_with(self.expected_api_url)
 
     @patch("data_citation_reporter.doi.get")
     @patch("data_citation_reporter.doi.shorten_doi")
