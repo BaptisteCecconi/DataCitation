@@ -3,12 +3,13 @@ from .static import (
     CROSSREF_DATACITATIONS_URL,
     CROSSREF_WORKS_URL,
 )
-from .mappings import CROSSREF_RELATIONS
+from .mappings import CROSSREF_RELATIONS, CROSSREF_TYPES
 from .rdf import URIRefDoi, shorten_doi, Graph
+from .namespaces import BIBLINK
 from .connect import get
 from typing import Dict
-from rdflib import URIRef, Literal
-from rdflib.namespace import PROV
+from rdflib import URIRef, Literal, BNode
+from rdflib.namespace import PROV, DCTERMS, RDF, FOAF
 
 
 def get_single_doi(doi: URIRef) -> Dict:
@@ -89,17 +90,13 @@ def get_datacitations(pid: URIRef, api_url=CROSSREF_DATACITATIONS_URL):
                         CROSSREF_RELATIONS[relation],
                         URIRefDoi(object),
                     ),
-                    prov={
-                        PROV.wasInformedBy: Literal("CrossRef DataCitations")
-                    },
+                    prov={PROV.wasInformedBy: Literal("CrossRef DataCitations")},
                 )
 
     return g
 
 
-def check_crossref(
-    src_uri, ref_uri, ref_title, api_url="https://api.crossref.org/works/"
-):
+def check_crossref(src_uri, ref_uri, ref_title, api_url="https://api.crossref.org/works/"):
     from thefuzz import fuzz
 
     src_doi = shorten_doi(src_uri)
@@ -119,26 +116,20 @@ def check_crossref(
                 if reference.get("DOI", "").lower() == ref_doi:
                     result["found"] = True
                     result["reference"] = reference
-                    result["message"] = (
-                        f"Found {ref_doi} in formatted reference"
-                    )
+                    result["message"] = f"Found {ref_doi} in formatted reference"
                     result["status"] = 2
                 else:
                     for k, v in reference.items():
                         if ref_doi in v.lower():
                             result["found"] = True
                             result["reference"] = reference
-                            result["message"] = (
-                                f"Found {ref_doi} in {k} reference"
-                            )
+                            result["message"] = f"Found {ref_doi} in {k} reference"
                             result["status"] = 1
                             break
                         elif ref_title.lower() in v.lower():
                             result["found"] = True
                             result["reference"] = reference
-                            result["message"] = (
-                                f"Found title of {ref_doi} in {k} reference"
-                            )
+                            result["message"] = f"Found title of {ref_doi} in {k} reference"
                             result["status"] = 1
                             break
                         else:
@@ -147,9 +138,47 @@ def check_crossref(
                             if ratio > 70:
                                 result["found"] = True
                                 result["reference"] = reference
-                                result["message"] = (
-                                    f"Detected title of {ref_doi} in {k} reference ({ratio}%)"
-                                )
+                                result["message"] = f"Detected title of {ref_doi} in {k} reference ({ratio}%)"
                                 result["status"] = 1
 
     return result
+
+
+def import_doi(doi: URIRef) -> Graph:
+    print(f"Found DOI: {str(doi)}")
+    metadata = get_single_doi(shorten_doi(doi))
+    return import_doi_metadata(metadata)
+
+
+def import_doi_metadata(metadata: Dict) -> Graph:
+    g = Graph()
+    doi = URIRefDoi(metadata["DOI"].lower())
+    print(f"Found DOI: {str(doi)}")
+
+    # CrossRef is the DOI metadata manager:
+    g.add((doi, PROV.wasInformedBy, Literal("CrossRef")))
+    # ObsParis is the publisher:
+    g.add((doi, DCTERMS.publisher, Literal(metadata["publisher"])))
+    # the PID is a DOI
+    g.add((doi, BIBLINK.scheme, Literal("doi")))
+    # the title:
+    g.add((doi, DCTERMS.title, Literal(metadata["title"][0])))
+    # the schema.org and DCMI types:
+    g.add((doi, RDF.type, CROSSREF_TYPES[metadata["type"]]))
+    # Creators:
+    for creator in metadata["author"]:
+        name = f"{creator['family']}, {creator['given']}"
+        if "ORCID" in creator.keys():
+            # if there is a NameIdentifier (ORCID)
+            creator_id = creator["ORCID"]
+            g.add((URIRef(creator_id), RDF.type, FOAF.Person))
+            g.add((URIRef(creator_id), FOAF.name, Literal(name)))
+            g.add((URIRef(creator_id), BIBLINK.scheme, Literal("orcid")))
+            g.add((doi, DCTERMS.creator, URIRef(creator_id)))
+        else:
+            tmp = BNode(name)
+            g.add((tmp, RDF.type, FOAF.Person))
+            g.add((tmp, FOAF.name, Literal(name)))
+            g.add((doi, DCTERMS.creator, tmp))
+
+    return g
