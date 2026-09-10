@@ -135,7 +135,7 @@ class TestGetOpenaireGraph:
         assert len(result) == 0  # No triples added
 
         # Verify URIRefDoi was not called
-        mock_get.assert_called_once_with(self.expected_access_url)
+        mock_get.assert_called_once_with(self.expected_access_url, use_cache=True)
 
     @patch("data_citation_reporter.openaire.get")
     @patch("data_citation_reporter.openaire.URIRefDoi")

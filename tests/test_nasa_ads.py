@@ -68,6 +68,7 @@ class TestGetNasaAds:
                 "Accept": "application/json",
                 "Authorization": "Bearer test_token",
             },
+            use_cache=True,
         )
 
         for triple in result:
@@ -137,6 +138,7 @@ class TestGetNasaAds:
                 "Accept": "application/json",
                 "Authorization": "Bearer test_token",
             },
+            use_cache=True,
         )
 
     @patch("data_citation_reporter.nasa_ads.yaml.load")

@@ -52,7 +52,7 @@ def test_get_single_doi_success(mocker, test_doi, expected_access_url_crossrefwo
     assert result == test_message
 
     # Verify the access URL construction
-    mock_get.assert_called_once_with(expected_access_url_crossrefworks)
+    mock_get.assert_called_once_with(expected_access_url_crossrefworks, use_cache=True)
 
 
 def test_get_single_doi_api_error(mocker, test_doi, expected_access_url_crossrefworks):
@@ -68,7 +68,7 @@ def test_get_single_doi_api_error(mocker, test_doi, expected_access_url_crossref
     assert result == {}
 
     # Verify the access URL construction
-    mock_get.assert_called_once_with(expected_access_url_crossrefworks)
+    mock_get.assert_called_once_with(expected_access_url_crossrefworks, use_cache=True)
 
 
 """Unit tests for the get_datacitations function"""
@@ -143,7 +143,7 @@ def test_get_datacitations_success(mocker, test_data, test_doi, test_pid, expect
     assert len(result) == 12  # 6 provenance statements × 2 relations
 
     # Verify the access URL construction
-    mock_get.assert_called_once_with(expected_access_url_datacitations)
+    mock_get.assert_called_once_with(expected_access_url_datacitations, use_cache=True)
 
     # Verify triple structure
     # Check DCTERMS relations
@@ -171,7 +171,7 @@ def test_get_datacitations_api_error(mocker, test_doi, test_pid, expected_access
     assert len(result) == 0  # Empty graph returned
 
     # Verify the access URL construction
-    mock_get.assert_called_once_with(expected_access_url_datacitations)
+    mock_get.assert_called_once_with(expected_access_url_datacitations, use_cache=True)
 
 
 def test_get_datacitations_no_results(mocker, test_doi, test_pid):
@@ -277,7 +277,7 @@ def test_check_crossref_found_by_doi(
     assert "reference" in result
 
     # Verify function calls
-    mock_get.assert_called_once_with(expected_access_url_crossref)
+    mock_get.assert_called_once_with(expected_access_url_crossref, use_cache=True)
 
 
 def test_check_crossref_found_by_doi_in_field(
@@ -314,7 +314,7 @@ def test_check_crossref_found_by_doi_in_field(
     assert "reference" in result
 
     # Verify function calls
-    mock_get.assert_called_once_with(expected_access_url_crossref)
+    mock_get.assert_called_once_with(expected_access_url_crossref, use_cache=True)
 
 
 def test_check_crossref_found_by_title(
@@ -353,7 +353,7 @@ def test_check_crossref_found_by_title(
     assert "reference" in result
 
     # Verify function calls
-    mock_get.assert_called_once_with(expected_access_url_crossref)
+    mock_get.assert_called_once_with(expected_access_url_crossref, use_cache=True)
 
 
 def test_check_crossref_found_by_fuzzy_match(
@@ -391,7 +391,7 @@ def test_check_crossref_found_by_fuzzy_match(
     assert "71%" in result["message"]
 
     # Verify function calls
-    mock_get.assert_called_once_with(expected_access_url_crossref)
+    mock_get.assert_called_once_with(expected_access_url_crossref, use_cache=True)
 
 
 def test_check_crossref_not_found(
@@ -422,7 +422,7 @@ def test_check_crossref_not_found(
     assert "reference" not in result
 
     # Verify function calls
-    mock_get.assert_called_once_with(expected_access_url_crossref)
+    mock_get.assert_called_once_with(expected_access_url_crossref, use_cache=True)
 
 
 def test_check_crossref_no_references_section(
@@ -452,4 +452,4 @@ def test_check_crossref_no_references_section(
     assert result["message"] == "Reference not found in CrossRef metadata."
 
     # Verify function calls
-    mock_get.assert_called_once_with(expected_access_url_crossref)
+    mock_get.assert_called_once_with(expected_access_url_crossref, use_cache=True)

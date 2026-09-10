@@ -44,7 +44,7 @@ class TestGetSingleDoi:
         assert result == self.test_data["data"]
 
         # Verify the access URL construction
-        mock_get.assert_called_once_with(self.expected_access_url)
+        mock_get.assert_called_once_with(self.expected_access_url, use_cache=True)
 
     @patch("data_citation_reporter.datacite.get")
     def test_get_single_doi_api_error(self, mock_get):
@@ -59,7 +59,7 @@ class TestGetSingleDoi:
         assert result == {}
 
         # Verify the access URL construction
-        mock_get.assert_called_once_with(self.expected_access_url)
+        mock_get.assert_called_once_with(self.expected_access_url, use_cache=True)
 
     @patch("data_citation_reporter.datacite.get")
     def test_get_single_doi_empty_data(self, mock_get):
@@ -74,7 +74,7 @@ class TestGetSingleDoi:
         assert result == {}
 
         # Verify the access URL construction
-        mock_get.assert_called_once_with(self.expected_access_url)
+        mock_get.assert_called_once_with(self.expected_access_url, use_cache=True)
 
 
 class TestGetDoisFromPrefix:

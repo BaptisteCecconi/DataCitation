@@ -43,7 +43,7 @@ class TestGetOpenCitations:
         assert len(result) == 14  # 7 triples per citation × 3 unique citations
 
         # Verify the access URL construction
-        mock_get.assert_called_once_with(self.expected_access_url)
+        mock_get.assert_called_once_with(self.expected_access_url, use_cache=True)
 
         # Verify triple structure
         src_uri = URIRef(f"https://doi.org/{self.test_doi}".lower())
@@ -72,7 +72,7 @@ class TestGetOpenCitations:
         assert len(result) == 0  # No triples added
 
         # Verify the access URL construction
-        mock_get.assert_called_once_with(self.expected_access_url)
+        mock_get.assert_called_once_with(self.expected_access_url, use_cache=True)
 
     @patch("data_citation_reporter.opencitations.get")
     def test_get_opencitations_api_error(self, mock_get):
@@ -88,7 +88,7 @@ class TestGetOpenCitations:
         assert len(result) == 0  # Empty graph returned
 
         # Verify the access URL construction
-        mock_get.assert_called_once_with(self.expected_access_url)
+        mock_get.assert_called_once_with(self.expected_access_url, use_cache=True)
 
     @patch("data_citation_reporter.opencitations.get")
     def test_get_opencitations_custom_api_url(self, mock_get):
@@ -107,7 +107,7 @@ class TestGetOpenCitations:
         assert len(result) == 14
 
         # Verify the custom URL was used
-        mock_get.assert_called_once_with(expected_custom_url)
+        mock_get.assert_called_once_with(expected_custom_url, use_cache=True)
 
     @patch("data_citation_reporter.opencitations.get")
     def test_get_opencitations_provenance(self, mock_get):
