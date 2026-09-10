@@ -1,27 +1,29 @@
 # -*- coding: utf-8 -*-
 """Utility module for managing tokens."""
 
-from pathlib import Path
 import os
 import yaml
+from pathlib import Path
 from getpass import getpass
 
-token_file = Path(__file__).parent.parent / "tokens.yaml"
-if not token_file.exists():
-    os.system(f"touch {token_file}")
+TOKEN_FILE = Path(os.environ["HOME"]) / ".data_citation_report" / "tokens.yaml"
 
 
 def load_token_file():
     """Loads tokens from tokens file."""
-    with open(token_file, encoding="utf-8") as f:
-        return yaml.load(f, Loader=yaml.FullLoader)
+    TOKEN_FILE.touch(exist_ok=True)
+    with open(TOKEN_FILE, encoding="utf-8") as f:
+        tokens = yaml.load(f, Loader=yaml.FullLoader)
+    if tokens is None:
+        tokens = {}
+    return tokens
 
 
 def store_token(key: str, value: str):
     """Stores token in tokens file."""
     token = load_token_file()
     token[key] = value
-    with open(token_file, "w", encoding="utf-8") as f:
+    with open(TOKEN_FILE, "w", encoding="utf-8") as f:
         yaml.dump(token, f, Dumper=yaml.Dumper)
 
 
@@ -29,7 +31,7 @@ def load_token(key: str):
     """Loads token from tokens file."""
 
     tokens = load_token_file()
-    if key in tokens:
+    if tokens.get(key) is not None:
         return tokens[key]
 
     print(f"Token `{key}` not found in tokens file")
