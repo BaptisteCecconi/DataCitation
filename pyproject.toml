@@ -30,6 +30,7 @@ version = "0.0"
 dependencies = [
     "rdflib",
     "requests",
+    "yaml",
     "thefuzz",
     "diskcache"
 ]
