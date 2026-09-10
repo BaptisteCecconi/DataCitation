@@ -108,13 +108,18 @@ class Report(Graph):
                 self.add(triple)
             self.add_with_prov((doi, DCITE["cites"], self.dois[0]), prov={PROV.wasInformedBy: Literal("Curator")})
 
-    def pids_from_publisher(self, publisher):
+    def pids_from_publisher(self, publisher=None):
         """select PIDs from a publisher"""
-        pids = []
-        for s, p, o in self:
-            if p == DCTERMS.publisher and str(o) == publisher:
-                pids.append(s)
-        return pids
+        if publisher is None:
+            return list(self.subjects(DCTERMS.publisher))
+
+        return list(self.subjects(DCTERMS.publisher, Literal(publisher)))
+
+    #        pids = []
+    #        for s, p, o in self:
+    #            if p == DCTERMS.publisher and str(o) == publisher:
+    #                pids.append(s)
+    #        return pids
 
     def _include_external_source(self, source, publisher):
         """Include triples from an external source.
@@ -125,30 +130,30 @@ class Report(Graph):
             for triple in source(pid):
                 self.add(triple)
 
-    def include_biblinks(self, publisher="ObsParis"):
+    def include_biblinks(self, publisher=None):
         """Include biblinks triples for PIDs of a publisher."""
         self._include_external_source(get_biblinks, publisher=publisher)
 
-    def include_scholexplorer(self, publisher="ObsParis"):
+    def include_scholexplorer(self, publisher=None):
         """Include scholexplorer triples for PIDs of a publisher."""
         self._include_external_source(get_scholexplorer, publisher=publisher)
 
-    def include_openaire_graph(self, publisher="ObsParis"):
+    def include_openaire_graph(self, publisher=None):
         """Include openaire graphs triples for PIDs of a publisher."""
         self._include_external_source(get_openaire_graph, publisher=publisher)
 
-    def include_opencitations(self, publisher="ObsParis"):
+    def include_opencitations(self, publisher=None):
         """Include opencitations triples for PIDs of a publisher."""
         self._include_external_source(get_opencitations, publisher=publisher)
 
-    #    def include_crossref_eventdata(self, publisher="ObsParis"):
+    #    def include_crossref_eventdata(self, publisher=None):
     #        return self._include_external_source(get_eventdata, publisher=publisher)
 
-    def include_crossref_datacitations(self, publisher="ObsParis"):
+    def include_crossref_datacitations(self, publisher=None):
         """Include crossref datacitations triples for PIDs of a publisher."""
         self._include_external_source(get_datacitations, publisher=publisher)
 
-    def include_nasa_ads(self, publisher="ObsParis"):
+    def include_nasa_ads(self, publisher=None):
         """Include NASA ADS triples for PIDs of a publisher."""
         self._include_external_source(get_nasa_ads, publisher=publisher)
 
