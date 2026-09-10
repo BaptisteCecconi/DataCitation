@@ -17,7 +17,7 @@ from .namespaces import BIBLINK
 from .connect import get
 
 
-def get_single_doi(doi: URIRef) -> Dict:
+def get_single_doi(doi: str) -> Dict:
     """Get DOI metadata.
 
     :param doi: DOI (in the form 10.xxxx/yyyy)
