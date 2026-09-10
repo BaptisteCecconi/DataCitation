@@ -39,9 +39,7 @@ def test_message():
     }
 
 
-def test_get_single_doi_success(
-    mocker, test_doi, expected_access_url_crossrefworks, test_message
-):
+def test_get_single_doi_success(mocker, test_doi, expected_access_url_crossrefworks, test_message):
     """Test successful retrieval of DOI metadata"""
     # Setup mock
     mock_get = mocker.patch("data_citation_reporter.crossref.get")
@@ -57,9 +55,7 @@ def test_get_single_doi_success(
     mock_get.assert_called_once_with(expected_access_url_crossrefworks)
 
 
-def test_get_single_doi_api_error(
-    mocker, test_doi, expected_access_url_crossrefworks
-):
+def test_get_single_doi_api_error(mocker, test_doi, expected_access_url_crossrefworks):
     """Test when API returns None"""
     # Setup mock
     mock_get = mocker.patch("data_citation_reporter.crossref.get")
@@ -109,21 +105,15 @@ def test_data():
     }
 
 
-def test_get_datacitations_success(
-    mocker, test_data, test_doi, test_pid, expected_access_url_datacitations
-):
+def test_get_datacitations_success(mocker, test_data, test_doi, test_pid, expected_access_url_datacitations):
     """Test successful processing of datacitations"""
     # Setup mocks
     mock_get = mocker.patch("data_citation_reporter.crossref.get")
     mock_get.return_value = test_data
-    mock_shorten_doi = mocker.patch(
-        "data_citation_reporter.crossref.shorten_doi"
-    )
+    mock_shorten_doi = mocker.patch("data_citation_reporter.crossref.shorten_doi")
     mock_shorten_doi.return_value = test_doi
     mock_urirefdoi = mocker.patch("data_citation_reporter.crossref.URIRefDoi")
-    mock_relations = mocker.patch(
-        "data_citation_reporter.crossref.CROSSREF_RELATIONS"
-    )
+    mock_relations = mocker.patch("data_citation_reporter.crossref.CROSSREF_RELATIONS")
 
     # Mock URIRefDoi calls
     mock_subject1 = URIRef("https://doi.org/10.5678/subject.doi")
@@ -165,16 +155,12 @@ def test_get_datacitations_success(
     assert len(statement_nodes) == 2  # 1 provenance statements × 2 relations
 
 
-def test_get_datacitations_api_error(
-    mocker, test_doi, test_pid, expected_access_url_datacitations
-):
+def test_get_datacitations_api_error(mocker, test_doi, test_pid, expected_access_url_datacitations):
     """Test when API returns None"""
     # Setup mocks
     mock_get = mocker.patch("data_citation_reporter.crossref.get")
     mock_get.return_value = None
-    mock_shorten_doi = mocker.patch(
-        "data_citation_reporter.crossref.shorten_doi"
-    )
+    mock_shorten_doi = mocker.patch("data_citation_reporter.crossref.shorten_doi")
     mock_shorten_doi.return_value = test_doi
 
     # Call the function
@@ -193,9 +179,7 @@ def test_get_datacitations_no_results(mocker, test_doi, test_pid):
     # Setup mocks
     mock_get = mocker.patch("data_citation_reporter.crossref.get")
     mock_get.return_value = {"message": {"total-results": 0, "items": []}}
-    mock_shorten_doi = mocker.patch(
-        "data_citation_reporter.crossref.shorten_doi"
-    )
+    mock_shorten_doi = mocker.patch("data_citation_reporter.crossref.shorten_doi")
     mock_shorten_doi.return_value = test_doi
 
     mock_print = mocker.patch("builtins.print")
@@ -255,6 +239,8 @@ def test_data_with_references(ref_uri):
 def test_data_without_references():
     return {
         "message": {
+            "publisher": "test publisher",
+            "container-title": "test journal name",
             "title": ["Test Paper"],
             "author": [{"given": "John", "family": "Doe"}],
         }
@@ -273,9 +259,7 @@ def test_check_crossref_found_by_doi(
     # Setup mocks
     mock_get = mocker.patch("data_citation_reporter.crossref.get")
     mock_get.return_value = test_data_with_references
-    mock_shorten_doi = mocker.patch(
-        "data_citation_reporter.crossref.shorten_doi"
-    )
+    mock_shorten_doi = mocker.patch("data_citation_reporter.crossref.shorten_doi")
     mock_shorten_doi.side_effect = [
         "10.1234/source.doi",
         "10.5678/reference.doi",
@@ -287,10 +271,7 @@ def test_check_crossref_found_by_doi(
     # Verify the result
     assert result["found"] is True
     assert result["status"] == 2
-    assert (
-        result["message"]
-        == "Found 10.5678/reference.doi in formatted reference"
-    )
+    assert result["message"] == "Found 10.5678/reference.doi in formatted reference"
     assert "reference" in result
 
     # Verify function calls
@@ -309,9 +290,7 @@ def test_check_crossref_found_by_doi_in_field(
     # Setup mocks
     mock_get = mocker.patch("data_citation_reporter.crossref.get")
     mock_get.return_value = test_data_with_references
-    mock_shorten_doi = mocker.patch(
-        "data_citation_reporter.crossref.shorten_doi"
-    )
+    mock_shorten_doi = mocker.patch("data_citation_reporter.crossref.shorten_doi")
     mock_shorten_doi.side_effect = [
         "10.1234/source.doi",
         "10.5678/reference.doi",
@@ -320,9 +299,7 @@ def test_check_crossref_found_by_doi_in_field(
     # Modify test data to have DOI in unstructured field instead of DOI field
     test_data_modified = test_data_with_references.copy()
     test_data_modified["message"]["reference"][0].pop("DOI")
-    test_data_modified["message"]["reference"][0][
-        "unstructured"
-    ] = "See 10.5678/reference.doi for more details"
+    test_data_modified["message"]["reference"][0]["unstructured"] = "See 10.5678/reference.doi for more details"
 
     mock_get.return_value = test_data_modified
 
@@ -350,9 +327,7 @@ def test_check_crossref_found_by_title(
     # Setup mocks
     mock_get = mocker.patch("data_citation_reporter.crossref.get")
     mock_get.return_value = test_data_with_references
-    mock_shorten_doi = mocker.patch(
-        "data_citation_reporter.crossref.shorten_doi"
-    )
+    mock_shorten_doi = mocker.patch("data_citation_reporter.crossref.shorten_doi")
     mock_shorten_doi.side_effect = [
         "10.1234/source.doi",
         "10.5678/reference.doi",
@@ -391,9 +366,7 @@ def test_check_crossref_found_by_fuzzy_match(
     # Setup mocks
     mock_get = mocker.patch("data_citation_reporter.crossref.get")
     mock_get.return_value = test_data_with_references
-    mock_shorten_doi = mocker.patch(
-        "data_citation_reporter.crossref.shorten_doi"
-    )
+    mock_shorten_doi = mocker.patch("data_citation_reporter.crossref.shorten_doi")
     mock_shorten_doi.side_effect = [
         "10.1234/source.doi",
         "10.5678/reference.doi",
@@ -402,9 +375,7 @@ def test_check_crossref_found_by_fuzzy_match(
     # Modify test data to have partial title match
     test_data_modified = test_data_with_references.copy()
     test_data_modified["message"]["reference"][0]["DOI"] = ""
-    test_data_modified["message"]["reference"][0][
-        "unstructured"
-    ] = "Test Reference"
+    test_data_modified["message"]["reference"][0]["unstructured"] = "Test Reference"
 
     mock_get.return_value = test_data_modified
 
@@ -433,9 +404,7 @@ def test_check_crossref_not_found(
     # Setup mocks
     mock_get = mocker.patch("data_citation_reporter.crossref.get")
     mock_get.return_value = test_data_without_references
-    mock_shorten_doi = mocker.patch(
-        "data_citation_reporter.crossref.shorten_doi"
-    )
+    mock_shorten_doi = mocker.patch("data_citation_reporter.crossref.shorten_doi")
     mock_shorten_doi.side_effect = [
         "10.1234/source.doi",
         "10.5678/reference.doi",
@@ -466,9 +435,7 @@ def test_check_crossref_no_references_section(
     # Setup mocks
     mock_get = mocker.patch("data_citation_reporter.crossref.get")
     mock_get.return_value = test_data_without_references
-    mock_shorten_doi = mocker.patch(
-        "data_citation_reporter.crossref.shorten_doi"
-    )
+    mock_shorten_doi = mocker.patch("data_citation_reporter.crossref.shorten_doi")
     mock_shorten_doi.side_effect = [
         "10.1234/source.doi",
         "10.5678/reference.doi",
