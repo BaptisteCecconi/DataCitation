@@ -12,9 +12,9 @@ SCHOLEXPLORER_V1_URL = "http://api.scholexplorer.openaire.eu/v1/linksFromPid"
 OPENAIREGRAPH_V1_URL = "https://api.openaire.eu/graph/v1/researchProducts/links"
 OPENCITATIONS_URL = "http://opencitations.net/index/api/v1"
 CROSSREF_EVENTDATA_URL = "https://api.eventdata.crossref.org/v1/events"
-CROSSREF_DATACITATIONS_URL = "https://api.crossref.org/beta/datacitations/"
-CROSSREF_WORKS_URL = "https://api.crossref.org/works/"
-DOI_RA_URL = "https://doi.org/ra/"
+CROSSREF_DATACITATIONS_URL = "https://api.crossref.org/beta/datacitations"
+CROSSREF_WORKS_URL = "https://api.crossref.org/works"
+DOI_RA_URL = "https://doi.org/ra"
 DATACITE_DOIS_URL = "https://api.datacite.org/dois"
 
 REVERSE_PROPERTY = {
