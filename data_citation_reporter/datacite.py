@@ -99,10 +99,11 @@ def parse_doi_metadata_to_graph(metadata: Dict) -> Graph:
     doi = URIRefDoi(metadata["attributes"]["doi"].lower())
     print(f"Found DOI: {str(doi)}")
 
+    publisher = metadata["attributes"]["publisher"]
     # DataCite is the DOI metadata manager:
     g.add((doi, PROV.wasInformedBy, Literal("DataCite")))
     # ObsParis is the publisher:
-    g.add((doi, DCTERMS.publisher, Literal("ObsParis")))
+    g.add((doi, DCTERMS.publisher, Literal(publisher)))
     # the PID is a DOI
     g.add((doi, BIBLINK.scheme, Literal("doi")))
     # the title:
