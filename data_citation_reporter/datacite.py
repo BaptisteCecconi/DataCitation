@@ -69,12 +69,17 @@ def check_datacite(src_uri, ref_uri):
 
     response = get_single_doi(src_doi)
     for related_identifier in response["attributes"]["relatedIdentifiers"]:
-        if ref_doi == related_identifier["relatedIdentifier"].lower():
-            result["found"] = True
-            result["reference"] = related_identifier
-            result["status"] = 2
-            result["message"] = "Reference found in DataCite metadata."
-            break
+        # Some buggy records may bot have a "relatedIdentifier" , so we test first:
+        if "relatedIdentifier" in related_identifier.keys():
+            if ref_doi == related_identifier["relatedIdentifier"].lower():
+                result["found"] = True
+                result["reference"] = related_identifier
+                result["status"] = 2
+                result["message"] = "Reference found in DataCite metadata."
+                break
+        else:
+            print(f"Note:\nIssue with DataCite metadata for {src_doi}")
+            print(related_identifier)
     return result
 
 
