@@ -30,21 +30,24 @@ class Report(Graph):
         doi: str | List[str] | None = None,
         metadata: List[Dict] | None = None,
         known_citations: List[str] | None = None,
+        use_cache: bool = True,
     ):
         """Initialize the Report class.
 
         An instance must be initialized with a DOI or a list of DOIs, or the
         Datacite metadata extracted from the DOI or list of DOIs.
 
-        :param doi:
-        :param metadata:
-        :param known_citations:
+        :param doi: DOI or list of DOIs
+        :param metadata: DOI metadata extracted from a DOI
+        :param known_citations: list of known citations (DOIs)
+        :param use_cache: use API call cache (default to True)
         """
         Graph.__init__(self)
         self.bind("biblink", BIBLINK)
         self.bind("vorel", VOREL)
         self.bind("dcite", DCITE)
 
+        self.use_cache = use_cache
         if metadata is None and doi is not None:
             self.dois = doi
             for item in self.dois:
@@ -121,50 +124,56 @@ class Report(Graph):
     #                pids.append(s)
     #        return pids
 
-    def _include_external_source(self, source, publisher):
+    def _include_external_source(self, source, publisher, use_cache):
         """Include triples from an external source.
 
         :param source: a function to get the list of triples
         :param publisher: the publisher"""
+
+        if use_cache is None:
+            use_cache = self.use_cache
         for pid in self.pids_from_publisher(publisher):
-            for triple in source(pid):
+            for triple in source(pid, use_cache=use_cache):
                 self.add(triple)
 
-    def include_biblinks(self, publisher=None):
+    def include_biblinks(self, publisher=None, use_cache=None):
         """Include biblinks triples for PIDs of a publisher."""
-        self._include_external_source(get_biblinks, publisher=publisher)
+        self._include_external_source(get_biblinks, publisher=publisher, use_cache=use_cache)
 
-    def include_scholexplorer(self, publisher=None):
+    def include_scholexplorer(self, publisher=None, use_cache=None):
         """Include scholexplorer triples for PIDs of a publisher."""
-        self._include_external_source(get_scholexplorer, publisher=publisher)
+        self._include_external_source(get_scholexplorer, publisher=publisher, use_cache=use_cache)
 
-    def include_openaire_graph(self, publisher=None):
+    def include_openaire_graph(self, publisher=None, use_cache=None):
         """Include openaire graphs triples for PIDs of a publisher."""
-        self._include_external_source(get_openaire_graph, publisher=publisher)
+        self._include_external_source(get_openaire_graph, publisher=publisher, use_cache=use_cache)
 
-    def include_opencitations(self, publisher=None):
+    def include_opencitations(self, publisher=None, use_cache=None):
         """Include opencitations triples for PIDs of a publisher."""
-        self._include_external_source(get_opencitations, publisher=publisher)
+        self._include_external_source(get_opencitations, publisher=publisher, use_cache=use_cache)
 
     #    def include_crossref_eventdata(self, publisher=None):
     #        return self._include_external_source(get_eventdata, publisher=publisher)
 
-    def include_crossref_datacitations(self, publisher=None):
+    def include_crossref_datacitations(self, publisher=None, use_cache=None):
         """Include crossref datacitations triples for PIDs of a publisher."""
-        self._include_external_source(get_datacitations, publisher=publisher)
+        self._include_external_source(get_datacitations, publisher=publisher, use_cache=use_cache)
 
-    def include_nasa_ads(self, publisher=None):
+    def include_nasa_ads(self, publisher=None, use_cache=None):
         """Include NASA ADS triples for PIDs of a publisher."""
-        self._include_external_source(get_nasa_ads, publisher=publisher)
+        self._include_external_source(get_nasa_ads, publisher=publisher, use_cache=use_cache)
 
-    def export_citations(self, doi=None, file_format="md", filename=None):
+    def export_citations(self, doi=None, file_format="md", filename=None, use_cache=None):
         """Export citation data for given DOI.
 
         :param doi: DOI to export
         :param file_format: format to export (defaults to 'md')
         :param filename: filename to export to
+        :param use_cache: whether to use cached data
         """
 
+        if use_cache is None:
+            use_cache = self.use_cache
         if filename is None:
             f = StringIO()
         else:
@@ -292,10 +301,10 @@ WHERE {
                 f.write(f"- Verifying [{shorten_doi(citation)}]({citation}):\n\n")
                 ra = get_registration_agency(citation)
                 if ra.lower() == "datacite":
-                    result = check_datacite(src_uri=citation, ref_uri=doi)
+                    result = check_datacite(src_uri=citation, ref_uri=doi, use_cache=use_cache)
                 elif ra.lower() == "crossref":
                     title = str(list(self.objects(URIRefDoi(doi), DCTERMS.title))[0]).lower()
-                    result = check_crossref(src_uri=citation, ref_uri=doi, ref_title=title)
+                    result = check_crossref(src_uri=citation, ref_uri=doi, ref_title=title, use_cache=use_cache)
                 else:
                     f.write(f"  Registration Agency {ra} is not supported.\n")
                     continue

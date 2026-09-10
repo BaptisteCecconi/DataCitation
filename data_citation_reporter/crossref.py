@@ -17,13 +17,14 @@ from .namespaces import BIBLINK
 from .connect import get
 
 
-def get_single_doi(doi: str) -> Dict:
+def get_single_doi(doi: str, use_cache: bool = True) -> Dict:
     """Get DOI metadata.
 
     :param doi: DOI (in the form 10.xxxx/yyyy)
+    :param use_cache: whether to use cached data
     """
     access_url = f"{CROSSREF_WORKS_URL}/{doi}"
-    data = get(access_url)
+    data = get(access_url, use_cache=use_cache)
     if data is None:
         return {}
     return data["message"]
@@ -74,18 +75,19 @@ def get_single_doi(doi: str) -> Dict:
 #     return g
 
 
-def get_datacitations(pid: URIRef, api_url=CROSSREF_DATACITATIONS_URL):
+def get_datacitations(pid: URIRef, api_url=CROSSREF_DATACITATIONS_URL, use_cache: bool = True) -> Dict:
     """Get citation data from CrossRef DataCitations API.
 
     :param pid: Persistent identifier
     :param api_url: Openaire Scholexplorer API URL (defaults to CROSSREF_DATACITATIONS_URL)
+    :param use_cache: whether to use cached data
     :return: citation data as a Graph object
     """
     g = Graph()
     doi = shorten_doi(pid)
     access_url = f"{api_url}?object-id={doi}"
 
-    data = get(access_url)
+    data = get(access_url, use_cache=use_cache)
     if data is not None:
         ndata = data["message"]["total-results"]
         print(f"{doi}: {ndata}")
@@ -107,13 +109,14 @@ def get_datacitations(pid: URIRef, api_url=CROSSREF_DATACITATIONS_URL):
     return g
 
 
-def check_crossref(src_uri, ref_uri, ref_title, api_url=CROSSREF_WORKS_URL):
+def check_crossref(src_uri, ref_uri, ref_title, api_url=CROSSREF_WORKS_URL, use_cache: bool = True):
     """Check if a URI is present a CrossRef DOI metadata record.
 
     :param src_uri: Source DOI
     :param ref_uri: Reference URI (possibly DOI)
     :param ref_title: Reference title
     :param api_url: Openaire Scholexplorer API URL (defaults to CROSSREF_WORKS_URL)
+    :param use_cache: whether to use cached data
     :return: a dictionary with the status.
     """
 
@@ -126,7 +129,7 @@ def check_crossref(src_uri, ref_uri, ref_title, api_url=CROSSREF_WORKS_URL):
         "status": 0,
     }
 
-    data = get_single_doi(src_doi)
+    data = get_single_doi(src_doi, use_cache=use_cache)
     if data is not None:
         result["publisher"] = data["publisher"]
         result["container"] = data["container-title"]

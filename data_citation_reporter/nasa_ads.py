@@ -25,6 +25,7 @@ def get_nasa_ads(
     #    method: str = "full",
     api_url: str = API_URL,
     token: str = TOKEN,
+    use_cache: bool = True,
 ) -> Graph:
     """Get citations from NASA ADS
 
@@ -32,6 +33,7 @@ def get_nasa_ads(
     :param method: Default is "full" (not yet implemented)
     :param api_url: API URL of NASA ADS
     :param token: user token
+    :param use_cache: Use cached data
     :return: Graph of citations
     """
     g = Graph()
@@ -45,6 +47,7 @@ def get_nasa_ads(
             "Accept": "application/json",
             "Authorization": f"Bearer {token}",
         },
+        use_cache=use_cache,
     )["response"]
 
     if data["numFound"] > 0:

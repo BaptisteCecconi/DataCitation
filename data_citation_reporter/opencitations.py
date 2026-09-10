@@ -10,18 +10,19 @@ from .rdf import Graph, URIRefDoi
 from .connect import get
 
 
-def get_opencitations(pid, api_url=OPENCITATIONS_URL):
+def get_opencitations(pid, api_url=OPENCITATIONS_URL, use_cache: bool = True):
     """Get citation data from OpenCitations API.
 
     :param pid: Persistent identifier
     :param api_url: OpenCitations API URL (defaults to OPENCITATIONS_URL)
+    :param use_cache: Whether to use cached data (defaults to True)
     :return: citation data as a Graph object
     """
     g = Graph()
     doi = str(pid).replace("https://doi.org/", "")
 
     access_url = f"{api_url}/citations/{doi}"
-    data = get(access_url)
+    data = get(access_url, use_cache=use_cache)
     if data is None:
         return g
 

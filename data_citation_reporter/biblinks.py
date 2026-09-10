@@ -10,18 +10,19 @@ from .rdf import URIRefBibcode, URIRefDoi, Graph
 from .namespaces import VOREL, BIBLINK
 
 
-def get_biblinks(pid: URIRef, access_url: str = BIBLINKS_URL) -> Graph:
+def get_biblinks(pid: URIRef, access_url: str = BIBLINKS_URL, use_cache: bool = True) -> Graph:
     """Return a graph from IVOA biblinks endpoint.
 
     Args:
         pid: persistent identifier
         access_url: biblink endpoint URL
+        use_cache: whether to use cached data
     Returns:
         Graph
     """
     g = Graph()
 
-    data = get(access_url)
+    data = get(access_url, use_cache=use_cache)
     if data is None:
         return g
 

@@ -14,14 +14,15 @@ from .namespaces import BIBLINK, DCITE
 from .mappings import RESOURCE_TYPE_SDO_DCMITYPE
 
 
-def get_single_doi(doi, api_url=DATACITE_DOIS_URL) -> Dict:
+def get_single_doi(doi, api_url=DATACITE_DOIS_URL, use_cache: bool = True) -> Dict:
     """Get DOI metadata.
 
     :param doi: DOI (in the form 10.xxxx/yyyy)
     :param api_url: API URL
+    :param use_cache: Use cache
     """
     access_url = f"{api_url}/{doi}"
-    data = get(access_url)
+    data = get(access_url, use_cache=use_cache)
     if data is None:
         return {}
     return data["data"]
@@ -51,11 +52,12 @@ def get_dois_from_prefix(doi_prefix: str, api_url=DATACITE_DOIS_URL) -> List:
     return dois
 
 
-def check_datacite(src_uri, ref_uri):
+def check_datacite(src_uri, ref_uri, use_cache=True) -> Dict:
     """Check if a URI is present a DataCite DOI metadata record.
 
     :param src_uri: Source DOI
     :param ref_uri: Reference URI (possibly DOI)
+    :param use_cache: Use cache
     :return: a dictionary with the status.
     """
     src_doi = shorten_doi(src_uri)
@@ -67,7 +69,7 @@ def check_datacite(src_uri, ref_uri):
         "status": 0,
     }
 
-    response = get_single_doi(src_doi)
+    response = get_single_doi(src_doi, use_cache=use_cache)
     result["publisher"] = response["attributes"]["publisher"]
     for related_identifier in response["attributes"]["relatedIdentifiers"]:
         # Some buggy records may bot have a "relatedIdentifier" , so we test first:

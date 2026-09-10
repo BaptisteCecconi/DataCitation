@@ -15,11 +15,12 @@ from .rdf import URIRefDoi, URIRefArXiv, Graph
 # - Openaire Graph v1
 
 
-def get_scholexplorer(pid, api_url=SCHOLEXPLORER_V1_URL):
+def get_scholexplorer(pid, api_url=SCHOLEXPLORER_V1_URL, use_cache: bool = True):
     """Get citation data from OpenAire Scholexplorer API.
 
     :param pid: Persistent identifier
     :param api_url: Openaire Scholexplorer API URL (defaults to SCHOLEXPLORER_V1_URL)
+    :param use_cache: Use cached data
     :return: citation data as a Graph object
     """
     g = Graph()
@@ -27,7 +28,7 @@ def get_scholexplorer(pid, api_url=SCHOLEXPLORER_V1_URL):
     doi = str(pid).replace("https://doi.org/", "")
     access_url = f"{api_url}?pid={doi.replace('/', '%2F')}"
 
-    data = get(access_url)
+    data = get(access_url, use_cache=use_cache)
     if data is None:
         return g
 
@@ -73,11 +74,12 @@ def get_scholexplorer(pid, api_url=SCHOLEXPLORER_V1_URL):
 
 
 # https://api.openaire.eu/graph/v1/researchProducts/links?targetPid=10.25935%2Fnhb2-wy29&page=0&pageSize=100
-def get_openaire_graph(pid, api_url=OPENAIREGRAPH_V1_URL):
+def get_openaire_graph(pid, api_url=OPENAIREGRAPH_V1_URL, use_cache: bool = True):
     """Get citation data from OpenAire Graph API.
 
     :param pid: Persistent identifier
     :param api_url: OpenAire Graph API URL (defaults to OPENAIREGRAPH_V1_URL)
+    :param use_cache: Use cached data
     :return: citation data as a Graph object
     """
     g = Graph()
@@ -85,7 +87,7 @@ def get_openaire_graph(pid, api_url=OPENAIREGRAPH_V1_URL):
     doi = str(pid).replace("https://doi.org/", "")
     access_url = f"{api_url}?targetPid={doi}&page=0&pageSize=100"
 
-    data = get(access_url)
+    data = get(access_url, use_cache=use_cache)
     if data is None:
         return g
 
