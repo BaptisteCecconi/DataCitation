@@ -107,13 +107,13 @@ def get_datacitations(pid: URIRef, api_url=CROSSREF_DATACITATIONS_URL):
     return g
 
 
-def check_crossref(src_uri, ref_uri, ref_title, api_url="https://api.crossref.org/works/"):
+def check_crossref(src_uri, ref_uri, ref_title, api_url=CROSSREF_WORKS_URL):
     """Check if a URI is present a CrossRef DOI metadata record.
 
     :param src_uri: Source DOI
     :param ref_uri: Reference URI (possibly DOI)
     :param ref_title: Reference title
-    :param api_url: Openaire Scholexplorer API URL (defaults to "https://api.crossref.org/works/")
+    :param api_url: Openaire Scholexplorer API URL (defaults to CROSSREF_WORKS_URL)
     :return: a dictionary with the status.
     """
 
