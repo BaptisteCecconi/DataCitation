@@ -242,8 +242,10 @@ WHERE {
         #            else:
         #                relations[subj] = [(predicate, obj, provenance)]
 
+        # TODO: find a smarter way to do the following mapping
         citing_predicates = {
             DCITE.cites: "cites",
+            DCITE.Cites: "cites",
             DCITE.isPartOf: "is part of",
             DCITE.IsPartOf: "is part of",
             DCITE.hasPart: "has part",
@@ -255,9 +257,12 @@ WHERE {
             DCITE.IsDerivedFrom: "was derived from",
             DCITE.IsDescribedBy: "is described by",
             DCITE.references: "references",
+            DCITE.References: "references",
             DCITE.obsoletes: "obsoletes",
             DCITE.IsObsoletedBy: "is obsoleted by",
             DCITE.isnewversionof: "is new version of",
+            DCITE.IsNewVersionOf: "is new version of",
+            DCITE.IsSupplementTo: "is supplement to",
             DCTERMS.references: "references",
             VOREL.Cites: "cites",
             VOREL.IsSupplementedBy: "is supplemented by",
