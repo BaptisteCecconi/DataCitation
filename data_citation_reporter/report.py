@@ -171,6 +171,7 @@ class Report(Graph):
 
         if file_format != "md":
             raise ValueError("file_format must be 'md'")
+
         doi = self.dois[0]
 
         citing_pids = set()
@@ -293,6 +294,10 @@ WHERE {
                 else:
                     f.write(f"  Registration Agency {ra} is not supported.\n")
                     continue
+                if "publisher" in result.keys():
+                    f.write(f"  Publisher: {result["publisher"]}\n\n")
+                if "container" in result.keys():
+                    f.write(f"  Container: {"; ".join(result["container"])}\n\n")
                 f.write(f"  {buttons[result['status']]} {result['message']}\n")
                 if result["found"]:
                     f.write("  ```\n")
