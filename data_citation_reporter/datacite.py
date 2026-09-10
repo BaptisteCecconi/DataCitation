@@ -163,7 +163,7 @@ def parse_doi_metadata_to_graph(metadata: Dict) -> Graph:
         # print(doi, related_uri)
         g.add_with_prov(
             (doi, DCITE[reference["relationType"]], related_uri),
-            prov={PROV.wasInformedBy: Literal("ObsParis")},
+            prov={PROV.wasInformedBy: Literal(publisher)},
         )
 
     # Citations
