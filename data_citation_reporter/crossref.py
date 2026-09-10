@@ -125,9 +125,8 @@ def check_crossref(src_uri, ref_uri, ref_title, api_url=CROSSREF_WORKS_URL):
         "message": "Reference not found in CrossRef metadata.",
         "status": 0,
     }
-    access_url = f"{api_url}{src_doi}"
 
-    data = get(access_url)
+    data = get_single_doi(src_doi)
     if data is not None:
         if "reference" in data["message"].keys():
             for reference in data["message"]["reference"]:
