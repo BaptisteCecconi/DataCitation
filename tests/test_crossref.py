@@ -214,7 +214,7 @@ def ref_title():
 
 @pytest.fixture
 def expected_access_url_crossref():
-    return f"{CROSSREF_WORKS_URL}10.1234/source.doi"
+    return f"{CROSSREF_WORKS_URL}/10.1234/source.doi"
 
 
 @pytest.fixture

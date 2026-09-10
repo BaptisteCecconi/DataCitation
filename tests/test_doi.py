@@ -17,7 +17,7 @@ class TestGetRegistrationAgency:
         """Setup test data before each test"""
         self.test_uri = "https://doi.org/10.1234/example.doi"
         self.expected_doi = "10.1234/example.doi"
-        self.expected_api_url = f"{DOI_RA_URL}{self.expected_doi}"
+        self.expected_api_url = f"{DOI_RA_URL}/{self.expected_doi}"
         self.test_data = [{"RA": "Test Registration Agency"}]
         self.test_data_no_ra = [{"status": "not found"}]
 
@@ -135,7 +135,7 @@ class TestGetRegistrationAgency:
         get_registration_agency(different_uri)
 
         # Verify the URL construction
-        expected_url = f"{DOI_RA_URL}10.5678/another.doi"
+        expected_url = f"{DOI_RA_URL}/10.5678/another.doi"
         mock_get.assert_called_once_with(expected_url)
 
     @patch("data_citation_reporter.doi.get")
