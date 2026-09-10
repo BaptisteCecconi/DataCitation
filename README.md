@@ -26,3 +26,5 @@ report.export_citations(format="md", filename=f"reports/{doi}/citations.md")
 ```
 
 This will create a report (in markdown format) in a subdirectory `reports/10.25935/6jg4-mk86/citations.md`.
+
+A NASA/ADS API key will be asked when running the `report.include_nasa_ads()` command. You can create this one on your NASA/ADS account.
