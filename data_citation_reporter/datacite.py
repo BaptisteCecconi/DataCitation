@@ -68,6 +68,7 @@ def check_datacite(src_uri, ref_uri):
     }
 
     response = get_single_doi(src_doi)
+    result["publisher"] = response["attributes"]["publisher"]
     for related_identifier in response["attributes"]["relatedIdentifiers"]:
         # Some buggy records may bot have a "relatedIdentifier" , so we test first:
         if "relatedIdentifier" in related_identifier.keys():
