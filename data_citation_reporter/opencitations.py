@@ -27,7 +27,10 @@ def get_opencitations(pid, api_url=OPENCITATIONS_URL):
 
     print(f"{doi}: {len(data)}")
     if len(data) > 0:
-        citation_set = set((item["citing"], "doi") for item in data)
+        # extract "citing" doi, except when the value in an empty string.
+        # TODO: explore how to process this case anyway
+        #       this means that the citing resource doesn't have a DOI, like, e.g. an arXiv record
+        citation_set = set((item["citing"], "doi") for item in data if item["citing"] != "")
         print(f"citing: {', '.join([f'doi:{cite_item[0]}' for cite_item in citation_set])}")
 
         src_pid = URIRefDoi(doi)
