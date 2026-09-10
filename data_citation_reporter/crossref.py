@@ -128,8 +128,13 @@ def check_crossref(src_uri, ref_uri, ref_title, api_url=CROSSREF_WORKS_URL):
 
     data = get_single_doi(src_doi)
     if data is not None:
-        if "reference" in data["message"].keys():
-            for reference in data["message"]["reference"]:
+        result["publisher"] = data["publisher"]
+        result["container"] = data["container-title"]
+        if result["container"] == []:
+            if "essoar" in src_doi.lower():
+                result["container"].append("Earth and Space Science Open Archive")
+        if "reference" in data.keys():
+            for reference in data["reference"]:
                 if reference.get("DOI", "").lower() == ref_doi:
                     result["found"] = True
                     result["reference"] = reference
@@ -181,12 +186,15 @@ def parse_doi_metadata_to_graph(metadata: Dict) -> Graph:
     doi = URIRefDoi(metadata["DOI"].lower())
     print(f"Found DOI: {str(doi)}")
 
+    print(metadata["publisher"])
     # CrossRef is the DOI metadata manager:
     g.add((doi, PROV.wasInformedBy, Literal("CrossRef")))
-    # ObsParis is the publisher:
+    # the publisher:
     g.add((doi, DCTERMS.publisher, Literal(metadata["publisher"])))
-    # the PID is a DOI
+    # the PID is a DOI:
     g.add((doi, BIBLINK.scheme, Literal("doi")))
+    # the journal:
+    g.add((doi, DCTERMS.isPartOf, Literal(metadata["container-title"])))
     # the title:
     g.add((doi, DCTERMS.title, Literal(metadata["title"][0])))
     # the schema.org and DCMI types:
