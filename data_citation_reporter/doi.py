@@ -19,7 +19,7 @@ def get_registration_agency(uri: Union[str, URIRef], api_url: str = DOI_RA_URL) 
     """
 
     doi = shorten_doi(URIRefDoi(uri))
-    access_url = f"{api_url}{doi}"
+    access_url = f"{api_url}/{doi}"
     data = get(access_url)
     if data is None:
         raise RuntimeError(f"Could not get data from {access_url}")
