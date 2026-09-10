@@ -30,7 +30,8 @@ version = "0.0"
 dependencies = [
     "rdflib",
     "requests",
-    "thefuzz"
+    "thefuzz",
+    "diskcache"
 ]
 license = "MIT"
 

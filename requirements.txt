@@ -1,6 +1,7 @@
 requests
 rdflib
 thefuzz
+diskcache
 pytest
 pre-commit
 pytest-mock
