@@ -41,12 +41,12 @@ class TestGetNasaAds:
         # Test data without results
         self.test_response_no_results = {"response": {"numFound": 0, "docs": []}}
 
-    @patch("data_citation_reporter.nasa_ads.yaml.load")
+    @patch("data_citation_reporter.nasa_ads.load_token")
     @patch("data_citation_reporter.nasa_ads.get")
-    def test_get_nasa_ads_success(self, mock_get, mock_yaml):
+    def test_get_nasa_ads_success(self, mock_get, mock_load_token):
         """Test successful processing with results"""
         # Setup mocks
-        mock_yaml.return_value = {"ads": "test_token"}
+        mock_load_token.return_value = "test_token"
         mock_token = "test_token"
         mock_api_url = self.test_api
 
@@ -95,12 +95,12 @@ class TestGetNasaAds:
         statement_nodes = list(result.subjects(RDF.type, RDF.Statement))
         assert len(statement_nodes) == 2  # 2 provenance statements
 
-    @patch("data_citation_reporter.nasa_ads.yaml.load")
+    @patch("data_citation_reporter.nasa_ads.load_token")
     @patch("data_citation_reporter.nasa_ads.get")
-    def test_get_nasa_ads_no_results(self, mock_get, mock_yaml):
+    def test_get_nasa_ads_no_results(self, mock_get, mock_load_token):
         """Test with no results found"""
         # Setup mocks
-        mock_yaml.return_value = {"ads": "test_token"}
+        mock_load_token.return_value = "test_token"
         mock_get.return_value = self.test_response_no_results
 
         # Call the function
@@ -110,13 +110,13 @@ class TestGetNasaAds:
         assert isinstance(result, Graph)
         assert len(result) == 0  # Empty graph returned
 
-    @patch("data_citation_reporter.nasa_ads.yaml.load")
+    @patch("data_citation_reporter.nasa_ads.load_token")
     @patch("builtins.open", new_callable=mock_open, read_data="ads: test_token\n")
     @patch("data_citation_reporter.nasa_ads.get")
-    def test_get_nasa_ads_custom_api_url(self, mock_get, mock_open, mock_yaml):
+    def test_get_nasa_ads_custom_api_url(self, mock_get, mock_open, mock_load_token):
         """Test with custom API URL"""
         # Setup mocks
-        mock_yaml.return_value = {"ads": "test_token"}
+        mock_load_token.return_value = "test_token"
 
         # Mock get response
         mock_get.return_value = self.test_response_with_results
@@ -141,14 +141,14 @@ class TestGetNasaAds:
             use_cache=True,
         )
 
-    @patch("data_citation_reporter.nasa_ads.yaml.load")
+    @patch("data_citation_reporter.nasa_ads.load_token")
     @patch("builtins.open", new_callable=mock_open, read_data="ads: test_token\n")
     @patch("data_citation_reporter.nasa_ads.get")
     @patch("data_citation_reporter.nasa_ads.shorten_doi")
-    def test_get_nasa_ads_empty_doi_list(self, mock_shorten_doi, mock_get, mock_open, mock_yaml):
+    def test_get_nasa_ads_empty_doi_list(self, mock_shorten_doi, mock_get, mock_open, mock_load_token):
         """Test with empty DOI list in result"""
         # Setup mocks
-        mock_yaml.return_value = {"ads": "test_token"}
+        mock_load_token.return_value = "test_token"
         mock_shorten_doi.return_value = self.test_doi
 
         # Test data with empty DOI list
