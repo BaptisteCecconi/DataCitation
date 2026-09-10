@@ -152,7 +152,7 @@ def parse_doi_metadata_to_graph(metadata: Dict) -> Graph:
             print(reference)
             continue
         related_id_type = reference["relatedIdentifierType"].lower()
-        if related_id_type == "doi":
+        if related_id_type in ["doi", "igsn"]:
             related_uri = URIRefDoi(related_id)
         elif related_id_type == "bibcode":
             related_uri = URIRefBibcode(related_id)
