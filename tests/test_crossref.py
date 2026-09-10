@@ -221,6 +221,8 @@ def expected_access_url_crossref():
 def test_data_with_references(ref_uri):
     return {
         "message": {
+            "publisher": "test publisher",
+            "container-title": "test journal name",
             "reference": [
                 {
                     "DOI": "10.5678/reference.doi",
@@ -230,7 +232,7 @@ def test_data_with_references(ref_uri):
                     "DOI": "10.9999/other.doi",
                     "unstructured": "Another Author (2023). Another Paper. Journal of Others, 20(2), 789-012.",
                 },
-            ]
+            ],
         }
     }
 

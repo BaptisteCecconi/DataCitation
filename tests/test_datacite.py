@@ -192,6 +192,7 @@ class TestCheckDatacite:
         # Test data with related identifiers
         self.test_response_with_reference = {
             "attributes": {
+                "publisher": "test publisher",
                 "relatedIdentifiers": [
                     {
                         "relatedIdentifier": "10.5678/reference.doi",
@@ -203,25 +204,26 @@ class TestCheckDatacite:
                         "relatedIdentifierType": "DOI",
                         "relationType": "IsCitedBy",
                     },
-                ]
+                ],
             }
         }
 
         # Test data without the specific reference
         self.test_response_without_reference = {
             "attributes": {
+                "publisher": "test publisher",
                 "relatedIdentifiers": [
                     {
                         "relatedIdentifier": "10.9999/other.doi",
                         "relatedIdentifierType": "DOI",
                         "relationType": "IsCitedBy",
                     }
-                ]
+                ],
             }
         }
 
         # Test data without related identifiers
-        self.test_response_no_related = {"attributes": {"relatedIdentifiers": []}}
+        self.test_response_no_related = {"attributes": {"publisher": "test publisher", "relatedIdentifiers": []}}
 
     @patch("data_citation_reporter.datacite.get_single_doi")
     @patch("data_citation_reporter.datacite.shorten_doi")
