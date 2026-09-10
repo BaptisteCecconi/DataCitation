@@ -22,7 +22,7 @@ report.include_opencitations()
 report.include_openaire_graph()
 report.include_nasa_ads()
 report.include_biblinks()
-report.export_citations(format="md", filename=f"reports/{doi}/citations.md")
+report.export_citations(file_format="md", filename=f"reports/{doi}/citations.md")
 ```
 
 This will create a report (in markdown format) in a subdirectory `reports/10.25935/6jg4-mk86/citations.md`.
