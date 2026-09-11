@@ -273,6 +273,7 @@ WHERE {
             DCITE.IsDescribedBy: "is described by",
             DCITE.references: "references",
             DCITE.References: "references",
+            DCITE.IsReferencedBy: "is referenced by",
             DCITE.obsoletes: "obsoletes",
             DCITE.IsObsoletedBy: "is obsoleted by",
             DCITE.isnewversionof: "is new version of",
