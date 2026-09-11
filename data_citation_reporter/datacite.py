@@ -170,35 +170,17 @@ def parse_doi_metadata_to_graph(metadata: Dict) -> Graph:
         )
 
     # Citations
-    for citation in metadata["relationships"]["citations"]["data"]:
-        if citation["type"] == "dois":
-            related_doi = URIRefDoi(citation["id"])
-        else:
-            print(f"{citation['type']} citation type is not supported")
-            continue
-        g.add_with_prov(
-            (related_doi, DCITE.cites, doi),
-            prov={PROV.wasInformedBy: Literal("DataCite Commons")},
-        )
-    for part in metadata["relationships"]["parts"]["data"]:
-        if part["type"] == "dois":
-            related_doi = URIRefDoi(part["id"])
-        else:
-            print(f"{part['type']} citation type is not supported")
-            continue
-        g.add_with_prov(
-            (related_doi, DCITE.hasPart, doi),
-            prov={PROV.wasInformedBy: Literal("DataCite Commons")},
-        )
-    for part in metadata["relationships"]["partOf"]["data"]:
-        if part["type"] == "dois":
-            related_doi = URIRefDoi(part["id"])
-        else:
-            print(f"{part['type']} citation type is not supported")
-            continue
-        g.add_with_prov(
-            (related_doi, DCITE.isPartOf, doi),
-            prov={PROV.wasInformedBy: Literal("DataCite Commons")},
-        )
+    empty_data = {"data": []}
+    for relation_attribute in ["citations", "parts", "partOf"]:
+        for relation in metadata["attributes"].get(relation_attribute, empty_data)["data"]:
+            if relation["type"] == "dois":
+                related_doi = URIRefDoi(relation["id"])
+            else:
+                print(f"{relation['type']} citation type is not supported")
+                continue
+            g.add_with_prov(
+                (related_doi, DCITE.cites, doi),
+                prov={PROV.wasInformedBy: Literal("DataCite Commons")},
+            )
 
     return g
