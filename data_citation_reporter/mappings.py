@@ -18,9 +18,11 @@ RESOURCE_TYPE_SDO_DCMITYPE = {
 }
 
 CROSSREF_RELATIONS = {
-    "references": DCITE["references"],
-    "cites": DCITE["cites"],
-    "is_part_of": DCITE["isPartOf"],
+    "references": DCITE["References"],
+    "cites": DCITE["Cites"],
+    "is_part_of": DCITE["IsPartOf"],
+    "is_supplemented_by": DCITE["IsSupplementedBy"],
+    "is-supplemented-by": DCITE["IsSupplementedBy"],
 }
 
 CROSSREF_TYPES = {
