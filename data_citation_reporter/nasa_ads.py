@@ -47,11 +47,12 @@ def get_nasa_ads(
 
     if data["numFound"] > 0:
         for result in data["docs"]:
-            if len(result["doi"]) > 0:
-                print(result["doi"][0])
-                g.add_with_prov(
-                    (URIRefDoi(result["doi"][0]), DCTERMS.references, uri),
-                    prov={PROV.wasInformedBy: Literal("NASA ADS")},
-                )
+            if "doi" in result:
+                if len(result["doi"]) > 0:
+                    print(result["doi"][0])
+                    g.add_with_prov(
+                        (URIRefDoi(result["doi"][0]), DCTERMS.references, uri),
+                        prov={PROV.wasInformedBy: Literal("NASA ADS")},
+                    )
 
     return g
