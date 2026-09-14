@@ -24,7 +24,7 @@ def get(
     access_url: str,
     headers: Dict | None = None,
     timeout: int = 120,
-    ttl: int = 3600,
+    ttl: int = 86400,
     use_cache: bool = True,
 ) -> Optional[Dict]:
     """Wrapper function for requests.get.
@@ -36,7 +36,7 @@ def get(
     :param access_url: URL to be accessed
     :param headers: HTTP headers (defaults to None)
     :param timeout: timeout in seconds (defaults to 120 seconds)
-    :param ttl: time-to-live in seconds for cached entries (defaults to 3600 seconds)
+    :param ttl: time-to-live in seconds for cached entries (defaults to 86400 seconds)
     :param use_cache: if False, bypasses the cache entirely (defaults to True)
     :return: parsed JSON response, or None on error
     """
