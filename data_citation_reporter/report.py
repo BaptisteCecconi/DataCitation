@@ -29,7 +29,7 @@ class Report(Graph):
         self,
         doi: str | List[str] | None = None,
         metadata: List[Dict] | None = None,
-        known_citations: List[str] | None = None,
+        known_relations: List[str] | None = None,
         use_cache: bool = True,
     ):
         """Initialize the Report class.
@@ -39,7 +39,7 @@ class Report(Graph):
 
         :param doi: DOI or list of DOIs
         :param metadata: DOI metadata extracted from a DOI
-        :param known_citations: list of known citations (DOIs)
+        :param known_relations: list of known relations (DOIs)
         :param use_cache: use API call cache (default to True)
         """
         Graph.__init__(self)
@@ -61,7 +61,7 @@ class Report(Graph):
         else:
             raise AttributeError("doi or metadata must be provided (exclusively)")
 
-        self.known_citations = known_citations
+        self.known_relations = known_relations
 
     @property
     def dois(self):
@@ -76,19 +76,19 @@ class Report(Graph):
         self._dois = [URIRefDoi(doi) for doi in dois]
 
     @property
-    def known_citations(self):
+    def known_relations(self):
         """Get list of known citations"""
-        return self._known_citations
+        return self._known_relations
 
-    @known_citations.setter
-    def known_citations(self, known_citations):
+    @known_relations.setter
+    def known_relations(self, known_relations):
         """Set list of known citations"""
-        if known_citations is None:
-            known_citations = []
-        elif not isinstance(known_citations, list):
-            known_citations = [known_citations]
-        self._known_citations = [URIRefDoi(item) for item in known_citations]
-        self._import_known_citations()
+        if known_relations is None:
+            known_relations = []
+        elif not isinstance(known_relations, list):
+            known_relations = [known_relations]
+        self._known_relations = [URIRefDoi(item) for item in known_relations]
+        self._import_known_relations()
 
     @classmethod
     def for_prefix(cls, doi_prefix=DOI_PREFIX_PADC):
@@ -96,9 +96,9 @@ class Report(Graph):
         g = cls(metadata=get_dois_from_prefix(doi_prefix=doi_prefix))
         return g
 
-    def _import_known_citations(self):
+    def _import_known_relations(self):
         """Import known citations"""
-        for doi in self.known_citations:
+        for doi in self.known_relations:
             print(f"Importing metadata for DOI: {str(doi)}")
             ra = get_registration_agency(doi)
             if ra == "Datacite":
@@ -221,12 +221,12 @@ class Report(Graph):
         f.write("\n-------\n")
         f.write("## Relations\n")
         f.write("### Known Citations (manual input)\n")
-        if len(self.known_citations) > 0:
-            for citation in sorted(self.known_citations):
+        if len(self.known_relations) > 0:
+            for citation in sorted(self.known_relations):
                 f.write(f"- {citation}\n")
                 citing_pids.add(citation)
         else:
-            f.write("- No known citations\n")
+            f.write("- No known relations\n")
 
         f.write("\n")
         f.write("-------\n")
