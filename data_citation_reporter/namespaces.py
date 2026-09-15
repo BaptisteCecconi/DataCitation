@@ -6,3 +6,5 @@ from rdflib import Namespace
 BIBLINK = Namespace("http://www.ivoa.net/rdf/biblink#")
 VOREL = Namespace("http://www.ivoa.net/rdf/voresource/relationship_type#")
 DCITE = Namespace("http://purl.org/spar/datacite/")
+CITO = Namespace("http://purl.org/spar/cito/")
+FRBR = Namespace("http://purl.org/vocab/frbr/core#")

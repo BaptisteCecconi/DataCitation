@@ -11,7 +11,7 @@ from .static import (
     CROSSREF_DATACITATIONS_URL,
     CROSSREF_WORKS_URL,
 )
-from .mappings import CROSSREF_RELATIONS, CROSSREF_TYPES
+from .mappings import datacite_relation, CROSSREF_TYPES
 from .rdf import URIRefDoi, shorten_doi, Graph
 from .namespaces import BIBLINK
 from .connect import get
@@ -100,7 +100,7 @@ def get_datacitations(pid: URIRef, api_url=CROSSREF_DATACITATIONS_URL, use_cache
                 g.add_with_prov(
                     (
                         URIRefDoi(subj),
-                        CROSSREF_RELATIONS[relation],
+                        datacite_relation(relation),
                         URIRefDoi(obj),
                     ),
                     prov={PROV.wasInformedBy: Literal("CrossRef DataCitations")},

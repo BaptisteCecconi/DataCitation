@@ -10,8 +10,8 @@ from .rdf import shorten_doi
 from .static import DATACITE_DOIS_URL
 from .connect import get
 from .rdf import Graph, URIRefDoi, URIRefBibcode, URIRefArXiv
-from .namespaces import BIBLINK, DCITE
-from .mappings import RESOURCE_TYPE_SDO_DCMITYPE
+from .namespaces import BIBLINK
+from .mappings import RESOURCE_TYPE_SDO_DCMITYPE, datacite_relation
 
 
 def get_single_doi(doi, api_url=DATACITE_DOIS_URL, use_cache: bool = True) -> Dict:
@@ -179,7 +179,7 @@ def parse_doi_metadata_to_graph(metadata: Dict) -> Graph:
                 print(f"{relation['type']} citation type is not supported")
                 continue
             g.add_with_prov(
-                (related_doi, DCITE.cites, doi),
+                (related_doi, datacite_relation("Cites"), doi),
                 prov={PROV.wasInformedBy: Literal("DataCite Commons")},
             )
 

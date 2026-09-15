@@ -7,7 +7,7 @@ from rdflib.namespace import DCTERMS, PROV
 from .connect import get
 from .static import SCHOLEXPLORER_V1_URL, OPENAIREGRAPH_V1_URL
 from .namespaces import BIBLINK
-from .mappings import OPENAIRE_SCHEMAS
+from .mappings import OPENAIRE_RELATIONS
 from .rdf import URIRefDoi, URIRefArXiv, Graph
 
 # OpenAire APIs:
@@ -102,7 +102,7 @@ def get_openaire_graph(pid, api_url=OPENAIREGRAPH_V1_URL, use_cache: bool = True
                     source_pid = URIRefDoi(identifier["idUrl"])
                     break
             if source_pid is not None:
-                relation = OPENAIRE_SCHEMAS[item["relType"]["typeSchema"]][item["relType"]["name"]]
+                relation = OPENAIRE_RELATIONS[item["relType"]["typeSchema"]][item["relType"]["name"]]
                 provenance = item["provenance"]
 
                 provenance = "OpenAIRE Graph (via " + ", ".join(provenance) + ")"

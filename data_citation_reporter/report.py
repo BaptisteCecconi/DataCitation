@@ -15,6 +15,7 @@ from .datacite import get_dois_from_prefix, check_datacite, import_doi, parse_do
 from .datacite import import_doi as datacite_import_doi
 from .doi import get_registration_agency
 from .namespaces import BIBLINK, VOREL, DCITE
+from .mappings import predicate_repr, datacite_relation
 from .nasa_ads import get_nasa_ads
 from .openaire import get_scholexplorer, get_openaire_graph
 from .opencitations import get_opencitations
@@ -109,7 +110,9 @@ class Report(Graph):
                 raise AttributeError(f"Unknown registration agency {ra}")
             for triple in triples:
                 self.add(triple)
-            self.add_with_prov((doi, DCITE["cites"], self.dois[0]), prov={PROV.wasInformedBy: Literal("Curator")})
+            self.add_with_prov(
+                (doi, datacite_relation("cites"), self.dois[0]), prov={PROV.wasInformedBy: Literal("Curator")}
+            )
 
     def pids_from_publisher(self, publisher=None):
         """select PIDs from a publisher"""
@@ -257,36 +260,10 @@ WHERE {
         #            else:
         #                relations[subj] = [(predicate, obj, provenance)]
 
-        # TODO: find a smarter way to do the following mapping
-        citing_predicates = {
-            DCITE.cites: "cites",
-            DCITE.Cites: "cites",
-            DCITE.isPartOf: "is part of",
-            DCITE.IsPartOf: "is part of",
-            DCITE.hasPart: "has part",
-            DCITE.haspart: "has part",
-            DCITE.HasPart: "has part",
-            DCITE.documents: "documents",
-            DCITE.IsDocumentedBy: "is documented by",
-            DCITE.issourceof: "is source of",
-            DCITE.IsDerivedFrom: "was derived from",
-            DCITE.IsDescribedBy: "is described by",
-            DCITE.references: "references",
-            DCITE.References: "references",
-            DCITE.IsReferencedBy: "is referenced by",
-            DCITE.obsoletes: "obsoletes",
-            DCITE.IsObsoletedBy: "is obsoleted by",
-            DCITE.isnewversionof: "is new version of",
-            DCITE.IsNewVersionOf: "is new version of",
-            DCITE.IsSupplementTo: "is supplement to",
-            DCTERMS.references: "references",
-            VOREL.Cites: "cites",
-            VOREL.IsSupplementedBy: "is supplemented by",
-        }
         for subj in citing_pids:
             f.write(f"- {subj}\n")
             for pred, obj, prov in relations[subj]:
-                f.write(f"  - {citing_predicates[pred]} {obj} [{prov}]\n")
+                f.write(f"  - {predicate_repr(pred)} {obj} [{prov}]\n")
         #        for k in sorted(relations.keys()):
         #            f.write(f"- {k}:\n")
         #            for pred, obj, prov in relations[k]:
