@@ -155,19 +155,23 @@ def parse_doi_metadata_to_graph(metadata: Dict) -> Graph:
             print(reference)
             continue
         related_id_type = reference["relatedIdentifierType"].lower()
-        if related_id_type in ["doi", "igsn"]:
-            related_uri = URIRefDoi(related_id)
-        elif related_id_type == "bibcode":
-            related_uri = URIRefBibcode(related_id)
-        elif related_id_type == "arxiv":
-            related_uri = URIRefArXiv(related_id)
-        else:
-            related_uri = URIRef(related_id)
-        # print(doi, related_uri)
-        g.add_with_prov(
-            (doi, DCITE[reference["relationType"]], related_uri),
-            prov={PROV.wasInformedBy: Literal(publisher)},
-        )
+        try:
+            if related_id_type in ["doi", "igsn"]:
+                related_uri = URIRefDoi(related_id)
+            elif related_id_type == "bibcode":
+                related_uri = URIRefBibcode(related_id)
+            elif related_id_type == "arxiv":
+                related_uri = URIRefArXiv(related_id)
+            else:
+                related_uri = URIRef(related_id)
+            # print(doi, related_uri)
+            g.add_with_prov(
+                (doi, datacite_relation(reference["relationType"]), related_uri),
+                prov={PROV.wasInformedBy: Literal(publisher)},
+            )
+        except ValueError as e:
+            print(related_id)
+            print(e)
 
     # Citations
     empty_data = {"data": []}
