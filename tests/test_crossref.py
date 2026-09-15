@@ -14,7 +14,7 @@ from data_citation_reporter.static import (
     CROSSREF_DATACITATIONS_URL,
     CROSSREF_WORKS_URL,
 )
-from data_citation_reporter.namespaces import DCITE
+from data_citation_reporter.namespaces import CITO
 from data_citation_reporter.rdf import URIRefDoi
 
 """Unit tests for the get_single_doi function"""
@@ -93,7 +93,7 @@ def test_data():
                 {
                     "subject": {"id": "10.5678/subject.doi"},
                     "object": {"id": "10.9999/object.doi"},
-                    "relation": "isCitedBy",
+                    "relation": "cites",
                 },
                 {
                     "subject": {"id": "10.1111/subject2.doi"},
@@ -113,7 +113,7 @@ def test_get_datacitations_success(mocker, test_data, test_doi, test_pid, expect
     mock_shorten_doi = mocker.patch("data_citation_reporter.crossref.shorten_doi")
     mock_shorten_doi.return_value = test_doi
     mock_urirefdoi = mocker.patch("data_citation_reporter.crossref.URIRefDoi")
-    mock_relations = mocker.patch("data_citation_reporter.crossref.CROSSREF_RELATIONS")
+    mock_relations = mocker.patch("data_citation_reporter.crossref.datacite_relation")
 
     # Mock URIRefDoi calls
     mock_subject1 = URIRef("https://doi.org/10.5678/subject.doi")
@@ -128,9 +128,9 @@ def test_get_datacitations_success(mocker, test_data, test_doi, test_pid, expect
     ]
 
     # Mock relations
-    mock_is_cited_by = DCITE.isCitedBy
-    mock_references = DCITE.references
-    mock_relations.__getitem__.side_effect = [
+    mock_is_cited_by = CITO.cites
+    mock_references = CITO.citesForInformation
+    mock_relations.side_effect = [
         mock_is_cited_by,
         mock_references,
     ]

@@ -7,7 +7,7 @@ from rdflib import Graph, URIRef, Literal
 from rdflib.namespace import RDF
 
 from data_citation_reporter.openaire import get_openaire_graph
-from data_citation_reporter.namespaces import BIBLINK, DCITE
+from data_citation_reporter.namespaces import BIBLINK, CITO
 from data_citation_reporter.rdf import URIRefDoi
 
 
@@ -38,7 +38,7 @@ class TestGetOpenaireGraph:
                             },
                         ]
                     },
-                    "relType": {"typeSchema": "datacite", "name": "isCitedBy"},
+                    "relType": {"typeSchema": "datacite", "name": "cites"},
                     "provenance": ["DataCite", "CrossRef"],
                 },
                 {
@@ -68,8 +68,8 @@ class TestGetOpenaireGraph:
         mock_get.return_value = self.test_data
 
         # Mock OPENAIRE_SCHEMAS
-        mock_is_cited_by = DCITE.isCitedBy
-        mock_references = DCITE.references
+        mock_is_cited_by = CITO.cites
+        mock_references = CITO.citesForInformation
 
         # Mock URIRefDoi calls
         mock_src_pid1 = URIRef("https://doi.org/10.5678/another.doi")
@@ -106,7 +106,7 @@ class TestGetOpenaireGraph:
             "results": [
                 {
                     "source": {"identifiers": [{"idScheme": "other", "idUrl": "other://identifier"}]},
-                    "relType": {"typeSchema": "citation", "name": "isCitedBy"},
+                    "relType": {"typeSchema": "citation", "name": "cites"},
                     "provenance": ["DataCite"],
                 }
             ]
