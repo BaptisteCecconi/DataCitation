@@ -3,11 +3,11 @@
 # TODO: refactor test to remove unittest
 
 from unittest.mock import patch
-from rdflib import Graph, URIRef, Literal
+from rdflib import Graph, URIRef
 from rdflib.namespace import RDF
 
-from data_citation_reporter.openaire import get_openaire_graph
-from data_citation_reporter.namespaces import BIBLINK, CITO
+from data_citation_reporter.openaire import get_openaire_graph, get_openaire_graph_v3
+from data_citation_reporter.namespaces import CITO
 from data_citation_reporter.rdf import URIRefDoi
 
 
@@ -24,45 +24,80 @@ class TestGetOpenaireGraph:
 
         # Test data with multiple results
         self.test_data = {
+            "header": {
+                "debug": {},
+                "numFound": 2,
+                "maxScore": 1.1,
+                "queryTime": 20,
+                "page": 0,
+                "pageSize": 100,
+                "totalPages": 1,
+                "totalLinks": 2,
+                "totalCitationsCount": 2,
+                "countsByType": {},
+                "nextCursor": "",
+            },
             "results": [
                 {
                     "source": {
                         "identifiers": [
                             {
+                                "id": "10.5678/another.doi",
                                 "idScheme": "doi",
                                 "idUrl": "https://doi.org/10.5678/another.doi",
                             },
                             {
+                                "id": "identifier",
                                 "idScheme": "other",
                                 "idUrl": "other://identifier",
                             },
                         ]
                     },
-                    "relType": {"typeSchema": "datacite", "name": "cites"},
-                    "provenance": ["DataCite", "CrossRef"],
+                    "target": {
+                        "identifiers": [
+                            {
+                                "id": "10.1234/example.doi",
+                                "idScheme": "doi",
+                                "idUrl": "https://doi.org/10.1234/example.doi",
+                            }
+                        ]
+                    },
+                    "relType": {"name": "Cites", "typeSchema": "datacite", "type": "cites"},
+                    #                    "provenance": ["DataCite", "CrossRef"],
                 },
                 {
                     "source": {
                         "identifiers": [
                             {
+                                "id": "identifier",
                                 "idScheme": "other",
                                 "idUrl": "other://identifier",
                             },
                             {
+                                "id": "10.9999/test.doi",
                                 "idScheme": "doi",
                                 "idUrl": "https://doi.org/10.9999/test.doi",
                             },
                         ]
                     },
-                    "relType": {"typeSchema": "datacite", "name": "references"},
-                    "provenance": ["ORCID"],
+                    "target": {
+                        "identifiers": [
+                            {
+                                "id": "10.1234/example.doi",
+                                "idScheme": "doi",
+                                "idUrl": "https://doi.org/10.1234/example.doi",
+                            }
+                        ]
+                    },
+                    "relType": {"name": "References", "typeSchema": "datacite", "type": "references"},
+                    #                    "provenance": ["ORCID"],
                 },
-            ]
+            ],
+            "facets": {},
         }
 
     @patch("data_citation_reporter.openaire.get")
-    @patch("data_citation_reporter.openaire.URIRefDoi")
-    def test_get_openaire_graph_success(self, mock_uri_ref_doi, mock_get):
+    def test_get_openaire_graph_success(self, mock_get):
         """Test successful processing with multiple relations"""
         # Setup mocks
         mock_get.return_value = self.test_data
@@ -72,34 +107,28 @@ class TestGetOpenaireGraph:
         mock_references = CITO.citesForInformation
 
         # Mock URIRefDoi calls
-        mock_src_pid1 = URIRef("https://doi.org/10.5678/another.doi")
-        mock_src_pid2 = URIRef("https://doi.org/10.9999/test.doi")
-        mock_uri_ref_doi.side_effect = [mock_src_pid1, mock_src_pid2]
+        pid1 = URIRef("https://doi.org/10.5678/another.doi")
+        pid2 = URIRef("https://doi.org/10.9999/test.doi")
 
         result = get_openaire_graph(self.test_pid)
 
         # Verify the result
         assert isinstance(result, Graph)
-        assert len(result) == 14  # 7 triples per result × 2 results
+        assert len(result) == 12  # 6 triples per result × 2 results
 
         for item in result:
             print(item)
 
         # Verify triple structure
-        assert (mock_src_pid1, mock_is_cited_by, self.test_pid) in result
-        assert (mock_src_pid2, mock_references, self.test_pid) in result
-
-        # Check BIBLINK.scheme triples
-        assert (mock_src_pid1, BIBLINK.scheme, Literal("doi")) in result
-        assert (mock_src_pid2, BIBLINK.scheme, Literal("doi")) in result
+        assert (pid1, mock_is_cited_by, self.test_pid) in result
+        assert (pid2, mock_references, self.test_pid) in result
 
         # Check provenance triples
         statement_nodes = list(result.subjects(RDF.type, RDF.Statement))
         assert len(statement_nodes) == 2  # 2 provenance statements
 
     @patch("data_citation_reporter.openaire.get")
-    @patch("data_citation_reporter.openaire.URIRefDoi")
-    def test_get_openaire_graph_no_doi_source(self, mock_uri_ref_doi, mock_get):
+    def test_get_openaire_graph_no_doi_source(self, mock_get):
         """Test when no DOI is found in source identifiers"""
         # Setup mocks
         test_data_no_doi = {
@@ -121,8 +150,7 @@ class TestGetOpenaireGraph:
         assert len(result) == 0  # No triples added for non-DOI sources
 
     @patch("data_citation_reporter.openaire.get")
-    @patch("data_citation_reporter.openaire.URIRefDoi")
-    def test_get_openaire_graph_empty_data(self, mock_uri_ref_doi, mock_get):
+    def test_get_openaire_graph_empty_data(self, mock_get):
         """Test with empty results"""
         # Setup mocks
         mock_get.return_value = {"results": []}
@@ -138,20 +166,15 @@ class TestGetOpenaireGraph:
         mock_get.assert_called_once_with(self.expected_access_url, use_cache=True)
 
     @patch("data_citation_reporter.openaire.get")
-    @patch("data_citation_reporter.openaire.URIRefDoi")
-    def test_get_openaire_graph_custom_api_url(self, mock_uri_ref_doi, mock_get):
+    def test_get_openaire_graph_custom_api_url(self, mock_get):
         """Test with custom API URL"""
         custom_api_url = "https://custom.api.example.org/graph/v1/researchProducts/links"
 
         # Setup mocks
         mock_get.return_value = self.test_data
 
-        # Mock URIRefDoi calls
-        mock_src_pid1 = URIRef("https://doi.org/10.5678/another.doi")
-        mock_uri_ref_doi.return_value = mock_src_pid1
-
         # Call the function with custom API URL
-        result = get_openaire_graph(self.test_pid, api_url=custom_api_url)
+        result = get_openaire_graph_v3(self.test_pid, api_url=custom_api_url)
 
         # Verify the result
         assert isinstance(result, Graph)

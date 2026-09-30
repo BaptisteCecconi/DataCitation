@@ -213,12 +213,12 @@ class Entity(BaseModel):
 
 class Node(BaseModel):
     identifiers: list[Identifier]
-    title: str
-    type: str
-    instanceType: str
-    publicationDate: str
-    authors: list[Entity]
-    collectedFrom: list[Entity]
+    title: str | None = None
+    type: str | None = None
+    instanceType: str | None = None
+    publicationDate: str | None = None
+    authors: list[Entity] | None = None
+    collectedFrom: list[Entity] | None = None
 
 
 class RelType(BaseModel):
@@ -248,7 +248,7 @@ class Relation:
     @staticmethod
     def _identifiers(data):
         identifiers = {}
-        for identifier in data.Identifier:
+        for identifier in data:
             identifiers[identifier.idScheme] = (identifier.id, identifier.idUrl)
         return identifiers
 
