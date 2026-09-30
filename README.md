@@ -19,7 +19,7 @@ doi = "10.25935/6jg4-mk86"
 report = Report(doi=doi)
 report.include_crossref_datacitations()
 report.include_opencitations()
-report.include_openaire_graph()
+report.include_scholexplorer()
 report.include_nasa_ads()
 report.include_biblinks()
 report.export_citations(file_format="md", filename=f"reports/{doi}/citations.md")
