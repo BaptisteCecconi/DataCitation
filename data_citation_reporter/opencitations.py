@@ -4,13 +4,13 @@
 from rdflib import Literal
 from rdflib.namespace import DCTERMS, PROV
 
-from .static import OPENCITATIONS_URL
+from .static import OPENCITATIONS_V1_URL
 from .namespaces import BIBLINK
 from .rdf import Graph, URIRefDoi
 from .connect import get
 
 
-def get_opencitations(pid, api_url=OPENCITATIONS_URL, use_cache: bool = True):
+def get_opencitations(pid, api_url=OPENCITATIONS_V1_URL, use_cache: bool = True):
     """Get citation data from OpenCitations API.
 
     :param pid: Persistent identifier
