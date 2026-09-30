@@ -6,7 +6,7 @@ from rdflib import Graph, URIRef, Literal
 from rdflib.namespace import DCTERMS, PROV, RDF
 
 from data_citation_reporter.opencitations import get_opencitations
-from data_citation_reporter.static import OPENCITATIONS_URL
+from data_citation_reporter.static import OPENCITATIONS_V1_URL
 from data_citation_reporter.namespaces import BIBLINK
 
 
@@ -17,7 +17,7 @@ class TestGetOpenCitations:
         """Setup test data before each test"""
         self.test_doi = "10.1234/example.doi"
         self.test_pid = f"https://doi.org/{self.test_doi}"
-        self.expected_access_url = f"{OPENCITATIONS_URL}/citations/{self.test_doi}"
+        self.expected_access_url = f"{OPENCITATIONS_V1_URL}/citations/{self.test_doi}"
 
         self.test_data = [
             {"citing": "10.5678/another.doi"},
