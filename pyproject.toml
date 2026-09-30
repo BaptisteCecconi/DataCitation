@@ -32,7 +32,8 @@ dependencies = [
     "requests",
     "pyyaml",
     "thefuzz",
-    "diskcache"
+    "diskcache",
+    "pydantic",
 ]
 license = "MIT"
 
