@@ -5,8 +5,8 @@ from io import StringIO
 from pathlib import Path
 from typing import List, Dict
 
-from rdflib import Literal
-from rdflib.namespace import RDF, DCTERMS, PROV
+from rdflib import Literal, Node, BNode
+from rdflib.namespace import RDF, DCTERMS, PROV, FOAF
 
 from .biblinks import get_biblinks
 from .crossref import get_datacitations, check_crossref
@@ -166,6 +166,17 @@ class Report(Graph):
         """Include NASA ADS triples for PIDs of a publisher."""
         self._include_external_source(get_nasa_ads, publisher=publisher, use_cache=use_cache)
 
+    def export_creator(self, node: Node) -> str:
+        """Export a creator defined in a Node.
+
+        :param node: The graph node containing the creator metadata
+        """
+        result = dict(self.predicate_objects(node))
+        creator_name = str(result[FOAF.name])
+        if isinstance(node, BNode):
+            return creator_name
+        return f"{creator_name} ([{str(node).split('/')[-1]}]({str(node)}))"
+
     def export_citations(self, doi=None, file_format="md", filename=None, use_cache=None):
         """Export citation data for given DOI.
 
@@ -200,9 +211,10 @@ class Report(Graph):
 
         f.write(f"# Data citation report for: {doi}\n")
         f.write("\n-------\n")
+
         doi_metadata = [
             ("title", DCTERMS.title, lambda x: str(x)),
-            ("creators", DCTERMS.creator, lambda x: f"[{str(x).split('/')[-1]}]({str(x)})"),
+            ("creators", DCTERMS.creator, self.export_creator),
             ("publisher", DCTERMS.publisher, lambda x: str(x)),
             ("product type", RDF.type, lambda x: str(x).split("/")[-1]),
         ]
