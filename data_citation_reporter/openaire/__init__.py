@@ -138,7 +138,7 @@ def get_openaire_graph_v3(pid, api_url=OPENAIREGRAPH_V3_URL, use_cache: bool = T
 
         data = get(access_url, use_cache=use_cache)
         if data is None:
-            return g
+            continue
 
         print(f"{pid_role}={doi}")
         data = OpenAireGraphLinksResultV3(data)
