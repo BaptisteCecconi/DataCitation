@@ -142,8 +142,25 @@ def test_get_cache(mocker, test_url, test_headers):
     mock_get.return_value = mock_response
 
     # Calling the function
-    result_no_cache = get(test_url, test_headers, use_cache=False)
-    result_cache = get(test_url, test_headers, use_cache=True)
+    result_no_cache = get(test_url + "?get_cache", test_headers, use_cache=False)
+    result_cache = get(test_url + "?get_cache", test_headers, use_cache=True)
 
     # Checking
     assert result_no_cache == result_cache
+
+
+def test_set_cache(mocker, test_url, test_headers):
+    """Test writing into cache"""
+
+    mock_get = mocker.patch("requests.get")
+    mock_response = mocker.Mock()
+    mock_response.json.return_value = {"key": "value", "data": "test"}
+    mock_response.raise_for_status.return_value = None
+    mock_get.return_value = mock_response
+
+    result = get(test_url + "?set_cache", test_headers, use_cache=False)
+    mock_response.json.return_value = {"key": "value", "data": "test1"}
+    result1 = get(test_url + "?set_cache", test_headers, update_cache=True)
+
+    assert result == {"key": "value", "data": "test"}
+    assert result1 == {"key": "value", "data": "test1"}

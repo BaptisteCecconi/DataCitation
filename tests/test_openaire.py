@@ -2,11 +2,19 @@
 # test_scholexplorer.py
 # TODO: refactor test to remove unittest
 
+from collections import namedtuple
+import pytest
 from unittest.mock import patch
+
 from rdflib import Graph, URIRef
 from rdflib.namespace import RDF
 
-from data_citation_reporter.openaire import get_openaire_graph, get_openaire_graph_v3
+from data_citation_reporter.openaire import (
+    get_openaire_graph,
+    get_openaire_graph_v3,
+    get_scholexplorer,
+    get_scholexplorer_v3,
+)
 from data_citation_reporter.namespaces import CITO
 from data_citation_reporter.rdf import URIRefDoi
 
@@ -221,3 +229,125 @@ class TestGetOpenaireGraph:
         for item in result:
             print(item)
         assert len(result) == 12  # 6 x 2 triples
+
+
+def test_get_openaire_graph_dispatch_v1():
+    """Test get_openaire_graph with api_version=1"""
+
+    with pytest.raises(NotImplementedError):
+        get_openaire_graph("10.1010/abcd", api_version=1)
+
+
+def test_get_openaire_graph_dispatch_v2():
+    """Test get_openaire_graph with api_version=2"""
+
+    with pytest.raises(NotImplementedError):
+        get_openaire_graph("10.1010/abcd", api_version=2)
+
+
+def test_get_openaire_graph_dispatch_v3(mocker):
+    """Test get_openaire_graph with api_version=3"""
+
+    mock_get = mocker.patch("data_citation_reporter.openaire.get_openaire_graph_v3")
+    mock_get.return_value = "test"
+
+    result = get_openaire_graph(URIRef("https://doi.org/10.1010/abcd"), api_version=3)
+
+    assert result == "test"
+    mock_get.assert_called_once_with("10.1010/abcd", use_cache=True)
+
+
+def test_get_openaire_graph_dispatch_v4():
+    """Test get_openaire_graph with api_version=4"""
+
+    with pytest.raises(NotImplementedError):
+        get_openaire_graph("10.1010/abcd", api_version=4)
+
+
+def test_get_openaire_graph_dispatch_v0():
+    """Test get_openaire_graph with api_version=x"""
+
+    with pytest.raises(ValueError):
+        get_openaire_graph("10.1010/abcd", api_version=0)
+
+
+def test_get_openaire_graph_v3(mocker):
+    """Test get_openaire_graph_v3"""
+
+    mock_get = mocker.patch("data_citation_reporter.openaire.get")
+    mock_get.return_value = None
+
+    result = get_openaire_graph_v3(URIRef("https://doi.org/10.1010/abcd"))
+
+    assert isinstance(result, Graph)
+    assert len(result) == 0
+    # test that the "targetPid" and "sourcePid" are actually both tested
+    assert mock_get.call_count == 2
+
+
+def test_get_scholexplorer_dispatch_v1():
+    """Test get_scholexplorer with api_version=1"""
+
+    with pytest.raises(NotImplementedError):
+        get_scholexplorer("10.1010/abcd", api_version=1)
+
+
+def test_get_scholexplorer_dispatch_v2():
+    """Test get_scholexplorer with api_version=2"""
+
+    with pytest.raises(NotImplementedError):
+        get_scholexplorer("10.1010/abcd", api_version=2)
+
+
+def test_get_scholexplorer_dispatch_v3(mocker):
+    """Test get_scholexplorer with api_version=3"""
+
+    mock_get = mocker.patch("data_citation_reporter.openaire.get_scholexplorer_v3")
+    mock_get.return_value = "test"
+
+    result = get_scholexplorer(URIRef("https://doi.org/10.1010/abcd"), api_version=3)
+
+    assert result == "test"
+    mock_get.assert_called_once_with("10.1010/abcd", use_cache=True)
+
+
+def test_get_scholexplorer_dispatch_v0():
+    """Test get_scholexplorer with api_version=0"""
+
+    with pytest.raises(ValueError):
+        get_scholexplorer("10.1010/abcd", api_version=0)
+
+
+def test_get_scholexplorer_v3_empty(mocker):
+    """Test get_scholexplorer_v3"""
+
+    mock_get = mocker.patch("data_citation_reporter.openaire.get")
+    mock_get.return_value = None
+
+    result = get_scholexplorer_v3(URIRef("https://doi.org/10.1010/abcd"))
+
+    assert isinstance(result, Graph)
+    assert len(result) == 0
+    # test that the "targetPid" and "sourcePid" are actually both tested
+    assert mock_get.call_count == 2
+
+
+def test_get_scholexplorer_v3(mocker):
+    """Test get_scholexplorer_v3"""
+
+    mock_get = mocker.patch("data_citation_reporter.openaire.get")
+    mock_get.return_value = 1
+
+    mock_ScholexplorerResultV3 = mocker.patch("data_citation_reporter.openaire.ScholexplorerResultV3")
+    Relation = namedtuple("Relation", ["source", "relation", "target"])
+    rel = Relation(
+        source=URIRef("https://doi.org/10.1010/abcd"),
+        relation=URIRef("ns:cites"),
+        target=URIRef("https://doi.org/10.2020/defg"),
+    )
+    mock_ScholexplorerResultV3.return_value.relations = [rel]
+
+    result = get_scholexplorer_v3(URIRef("https://doi.org/10.1010/abcd"))
+
+    assert isinstance(result, Graph)
+    assert len(result) == 6
