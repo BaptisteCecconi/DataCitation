@@ -163,6 +163,7 @@ OPENAIRE_RELATIONS = {
         "issourceof": DATACITE_RELATIONS["IsSourceOf"],
         "obsoletes": DATACITE_RELATIONS["Obsoletes"],
         "references": DATACITE_RELATIONS["References"],
+        "issupplementto": DATACITE_RELATIONS["IsSupplementTo"],
         "hasamongtopnsimilardocuments": DATACITE_RELATIONS["Other"],
     }
 }
