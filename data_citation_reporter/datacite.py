@@ -52,7 +52,7 @@ def get_dois_from_prefix(doi_prefix: str, api_url=DATACITE_DOIS_URL) -> List:
     return dois
 
 
-def check_datacite(src_uri, ref_uri, use_cache=True) -> Dict:
+def check_datacite(src_uri, ref_uri, use_cache: bool = True) -> Dict:
     """Check if a URI is present a DataCite DOI metadata record.
 
     :param src_uri: Source DOI
@@ -86,14 +86,15 @@ def check_datacite(src_uri, ref_uri, use_cache=True) -> Dict:
     return result
 
 
-def import_doi(doi: URIRef) -> Graph:
+def import_doi(doi: URIRef, use_cache: bool = True) -> Graph:
     """Import Datacite DOI metadata
 
     :param doi: DOI
+    :param use_cache: Use cache
     :return: Graph object with DOI metadata
     """
     print(f"Found DOI: {str(doi)}")
-    metadata = get_single_doi(shorten_doi(doi))
+    metadata = get_single_doi(shorten_doi(doi), use_cache=use_cache)
     return parse_doi_metadata_to_graph(metadata)
 
 

@@ -52,7 +52,7 @@ class Report(Graph):
         if metadata is None and doi is not None:
             self.dois = doi
             for item in self.dois:
-                for triple in import_doi(item):
+                for triple in import_doi(item, self.use_cache):
                     self.add(triple)
         elif metadata is not None and doi is None:
             self.dois = [item["attributes"]["doi"].lower() for item in metadata]
