@@ -10,12 +10,12 @@ from diskcache import Cache
 
 # Cache configuration
 _CACHE_DIR = "~/.data_citation_report/api_cache"
-_CACHE_SIZE_LIMIT = 100 * 1024 * 1024  # 100 Mo max sur disque
+_CACHE_SIZE_LIMIT = 100 * 1024 * 1024  # 100 MB max on disc
 _cache = Cache(_CACHE_DIR, size_limit=_CACHE_SIZE_LIMIT)
 
 
 def _make_key(url: str, headers: dict, timeout: int) -> str:
-    """Clé déterministe basée sur tous les paramètres de l'appel."""
+    """Determinist key based on call parameters."""
     payload = f"{url}|{dumps(headers, sort_keys=True)}|{timeout}"
     return hashlib.sha256(payload.encode()).hexdigest()
 
