@@ -203,11 +203,25 @@ class Report(Graph):
         doi = self.dois[0]
 
         citing_pids = set()
-        # if filename is None:
-        #    filename = f"citations.{format}"
+        relations = {}
 
-        # with open(filename, "w") as f:
-        #    f.write(f"# Data citation report for : {doi}\n")
+        query = """
+        PREFIX RDF: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX PROV: <http://www.w3.org/ns/prov#>
+        SELECT ?subject ?predicate ?object ?provenance
+        WHERE {
+            ?statement a RDF:Statement .
+            ?statement RDF:subject ?subject .
+            ?statement RDF:predicate ?predicate .
+            ?statement RDF:object ?object .
+            ?statement PROV:wasInformedBy ?provenance .
+        }
+        """
+        for result in self.query(query):
+            subj, predicate, obj, provenance = result
+            if subj != doi:
+                citing_pids.add(subj)
+            relations.setdefault(subj, []).append((predicate, obj, provenance))
 
         f.write(f"# Data citation report for: {doi}\n")
         f.write("\n-------\n")
@@ -223,16 +237,7 @@ class Report(Graph):
             for item in items:
                 f.write(f" - **{item_name}**: {item}\n")
 
-        query = """
-        PREFIX RDF: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        SELECT ?subject
-        WHERE {
-            ?statement a RDF:Statement .
-            ?statement RDF:subject ?subject .
-        }
-        """
-        nb_citation = len(set(self.query(query)))
-        f.write(f"## Number of research products citing the resource: {nb_citation}\n")
+        f.write(f"## Number of research products citing the resource: {len(citing_pids)}\n")
         f.write("\n-------\n")
         f.write("## Relations\n")
         f.write("### Known Citations (manual input)\n")
@@ -245,32 +250,7 @@ class Report(Graph):
 
         f.write("\n")
         f.write("-------\n")
-        f.write("### Discovered Relations\n")
-        relations = {}
-        query = """
-PREFIX RDF: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX PROV: <http://www.w3.org/ns/prov#>
-SELECT ?subject ?predicate ?object ?provenance
-WHERE {
-    ?statement a RDF:Statement .
-    ?statement RDF:subject ?subject .
-    ?statement RDF:predicate ?predicate .
-    ?statement RDF:object ?object .
-    ?statement PROV:wasInformedBy ?provenance .
-}
-"""
-        for result in self.query(query):
-            subj, predicate, obj, provenance = result
-            # if subj == doi:
-            #    predicate = reverse(predicate)
-            #    subj, obj = obj, subj
-
-            citing_pids.add(subj)
-            relations.setdefault(subj, []).append((predicate, obj, provenance))
-        #            if subj in relations:
-        #                relations[subj].append((predicate, obj, provenance))
-        #            else:
-        #                relations[subj] = [(predicate, obj, provenance)]
+        f.write("### Discovered Relations (as target)\n")
 
         for subj in citing_pids:
             f.write(f"- {subj}\n")
@@ -284,35 +264,43 @@ WHERE {
         #                print(f"- {k} {str(predicate).split('/')[-1]} {object} [{provenance}]")
         f.write("\n")
         f.write("-------\n")
-        f.write("## DOI Metadata Citation Assessment Report:\n")
+        f.write("### Discovered Relations (as source)\n")
+        if doi in relations.keys():
+            f.write(f"- {doi}\n")
+            for pred, obj, prov in relations[doi]:
+                f.write(f"  - {predicate_repr(pred)} {obj} [{prov}]\n")
+        f.write("\n")
+        f.write("-------\n")
+        f.write("## DOI Metadata Citation Assessment Report (as target):\n")
         buttons = ["🔴", "⚪️", "🟢"]
         for citation in sorted(list(citing_pids)):
-            try:
-                f.write(f"- Verifying [{shorten_doi(citation)}]({citation}):\n\n")
-                ra = get_registration_agency(citation)
-                if ra.lower() == "datacite":
-                    result = check_datacite(src_uri=citation, ref_uri=doi, use_cache=use_cache)
-                elif ra.lower() == "crossref":
-                    title = str(list(self.objects(URIRefDoi(doi), DCTERMS.title))[0]).lower()
-                    result = check_crossref(src_uri=citation, ref_uri=doi, ref_title=title, use_cache=use_cache)
-                else:
-                    f.write(f"  Registration Agency {ra} is not supported.\n")
-                    continue
-                if "publisher" in result.keys():
-                    f.write(f"  Publisher: {result["publisher"]}\n\n")
-                if "container" in result.keys():
-                    f.write(f"  Container: {"; ".join(result["container"])}\n\n")
-                f.write(f"  {buttons[result['status']]} {result['message']}\n")
-                if result["found"]:
-                    f.write("  ```\n")
-                    f.write("  {\n")
-                    for k, v in result["reference"].items():
-                        f.write(f"    '{k}': '{v}'\n")
-                    f.write("  }\n")
-                    f.write("  ```\n")
-            except ValueError as e:
-                f.write(f"  {e}\n")
-                f.write("  Skipping.\n")
+            if citation != doi:
+                try:
+                    f.write(f"- Verifying [{shorten_doi(citation)}]({citation}):\n\n")
+                    ra = get_registration_agency(citation)
+                    if ra.lower() == "datacite":
+                        result = check_datacite(src_uri=citation, ref_uri=doi, use_cache=use_cache)
+                    elif ra.lower() == "crossref":
+                        title = str(list(self.objects(URIRefDoi(doi), DCTERMS.title))[0]).lower()
+                        result = check_crossref(src_uri=citation, ref_uri=doi, ref_title=title, use_cache=use_cache)
+                    else:
+                        f.write(f"  Registration Agency {ra} is not supported.\n")
+                        continue
+                    if "publisher" in result.keys():
+                        f.write(f"  Publisher: {result["publisher"]}\n\n")
+                    if "container" in result.keys():
+                        f.write(f"  Container: {"; ".join(result["container"])}\n\n")
+                    f.write(f"  {buttons[result['status']]} {result['message']}\n")
+                    if result["found"]:
+                        f.write("  ```\n")
+                        f.write("  {\n")
+                        for k, v in result["reference"].items():
+                            f.write(f"    '{k}': '{v}'\n")
+                        f.write("  }\n")
+                        f.write("  ```\n")
+                except ValueError as e:
+                    f.write(f"  {e}\n")
+                    f.write("  Skipping.\n")
         if filename is None:
             f.flush()
             f.seek(0)
