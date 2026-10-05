@@ -6,3 +6,4 @@ pyyaml
 pytest
 pre-commit
 pytest-mock
+pydantic
