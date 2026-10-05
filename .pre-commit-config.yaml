@@ -11,3 +11,8 @@ repos:
   hooks:
   - id: flake8
     args: ['--ignore=E501,W503,E231,E203,F821']
+
+- repo: https://github.com/pylint-dev/pylint
+  rev: v3.3.7
+  hooks:
+  - id: pylint
