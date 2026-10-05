@@ -1,20 +1,22 @@
 # -*- coding: utf-8 -*-
-# test_api_client.py
+"""Test module for connect.py"""
 
-import pytest
-from requests.exceptions import ConnectionError, HTTPError
 import json
+import pytest
+from requests import exceptions
 
 from data_citation_reporter.connect import get
 
 
-@pytest.fixture
-def test_url():
+@pytest.fixture(name="test_url")
+def fixture_url():
+    """Test URL"""
     return "http://example.org/api"
 
 
-@pytest.fixture
-def test_headers():
+@pytest.fixture(name="test_headers")
+def fixture_headers():
+    """Test headers"""
     return {"Authorization": "Bearer token123"}
 
 
@@ -38,7 +40,7 @@ def test_get_connection_error(mocker, test_url, test_headers):
     """Test with connection error"""
     # Simulate a connection error
     mock_get = mocker.patch("requests.get")
-    mock_get.side_effect = ConnectionError("Connection failed")
+    mock_get.side_effect = exceptions.ConnectionError("Connection failed")
 
     # Capture the print output
     mock_print = mocker.patch("builtins.print")
@@ -57,7 +59,7 @@ def test_get_http_error(mocker, test_url, test_headers):
     # Mock the response with HTTP error
     mock_get = mocker.patch("requests.get")
     mock_response = mocker.Mock()
-    mock_response.raise_for_status.side_effect = HTTPError("404 Not Found")
+    mock_response.raise_for_status.side_effect = exceptions.HTTPError("404 Not Found")
     mock_get.return_value = mock_response
 
     mock_print = mocker.patch("builtins.print")
@@ -108,7 +110,7 @@ def test_get_large_response(mocker, test_url, test_headers):
     """Test with large JSON response"""
     mock_get = mocker.patch("requests.get")
     mock_response = mocker.Mock()
-    large_data = {"items": [i for i in range(1000)]}
+    large_data = {"items": list(range(1000))}
     mock_response.json.return_value = large_data
     mock_response.raise_for_status.return_value = None
     mock_get.return_value = mock_response
@@ -119,7 +121,7 @@ def test_get_large_response(mocker, test_url, test_headers):
     assert len(result["items"]) == 1000
 
 
-def test_get_empty_header(mocker, test_url, test_headers):
+def test_get_empty_header(mocker, test_url):
     """Test with empty header"""
     mock_get = mocker.patch("requests.get")
     mock_response = mocker.Mock()
