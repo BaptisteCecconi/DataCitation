@@ -34,22 +34,22 @@ persistent = true
 py-version = 3.13
 
 [tool.pylint.basic]
-argument-naming-style = snake_case
-attr-naming-style = snake_case
+argument-naming-style = "snake_case"
+attr-naming-style = "snake_case"
 bad-names = ["foo", "bar", "baz", "toto", "tutu", "tata"]
-class-attribute-naming-style = any
-class-const-naming-style = UPPER_CASE
-class-naming-style = PascalCase
-const-naming-style = UPPER_CASE
+class-attribute-naming-style = "any"
+class-const-naming-style = "UPPER_CASE"
+class-naming-style = "PascalCase"
+const-naming-style = "UPPER_CASE"
 docstring-min-length = -1          # docstrings required everywhere; relax to ~50 if too noisy
-function-naming-style = snake_case
+function-naming-style = "snake_case"
 good-names = ["i", "j", "k", "ex", "Run", "_"]
-inlinevar-naming-style = any
-method-naming-style = snake_case
-module-naming-style = snake_case
+inlinevar-naming-style = "any"
+method-naming-style = "snake_case"
+module-naming-style = "snake_case"
 no-docstring-rgx = "^_"
 property-classes = ["abc.abstractproperty"]
-variable-naming-style = snake_case
+variable-naming-style = "snake_case"
 
 [tool.pylint.classes]
 defining-attr-methods = ["__init__", "__new__", "setUp", "asyncSetUp", "__post_init__"]
@@ -84,7 +84,7 @@ max-module-lines = 1000
 known-third-party = ["enchant"]
 
 [tool.pylint.logging]
-logging-format-style = old
+logging-format-style = "old"
 logging-modules = ["logging"]
 
 [tool.pylint.method_args]
