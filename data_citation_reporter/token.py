@@ -2,9 +2,9 @@
 """Utility module for managing tokens."""
 
 import os
-import yaml
 from pathlib import Path
 from getpass import getpass
+import yaml
 
 TOKEN_FILE = Path(os.environ["HOME"]) / ".data_citation_report" / "tokens.yaml"
 

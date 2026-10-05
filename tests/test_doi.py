@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# test_registration_agency.py
+"""Test module for doi.py"""
 
 import pytest
 
@@ -7,37 +7,45 @@ from data_citation_reporter.doi import get_registration_agency
 from data_citation_reporter.static import DOI_RA_URL
 
 
-@pytest.fixture
-def test_uri():
+@pytest.fixture(name="test_uri")
+def fixture_uri():
+    """test_uri"""
     return "https://doi.org/10.1234/example.doi"
 
 
-@pytest.fixture
-def expected_doi():
+@pytest.fixture(name="expected_doi")
+def fixture_expected_doi():
+    """expected_doi"""
     return "10.1234/example.doi"
 
 
-@pytest.fixture
-def expected_api_url(expected_doi):
+@pytest.fixture(name="expected_api_url")
+def fixture_expected_api_url(expected_doi):
+    """expected_api_url"""
     return f"{DOI_RA_URL}/{expected_doi}"
 
 
-@pytest.fixture
-def test_data():
+@pytest.fixture(name="test_data")
+def fixture_data():
+    """test_data"""
     return [{"RA": "Test Registration Agency"}]
 
 
-@pytest.fixture
-def test_data_no_ra():
+@pytest.fixture(name="test_data_no_ra")
+def fixture_data_no_ra():
+    """test_data_no_ra"""
     return [{"status": "not found"}]
 
 
-@pytest.fixture
-def custom_api_url():
+@pytest.fixture(name="custom_api_url")
+def fixture_custom_api_url():
+    """custom_api_url"""
     return "https://custom.api.example.org/"
 
 
-"""Unit tests for the get_registration_agency function"""
+# ===================================================
+# Unit tests for the get_registration_agency function
+# ===================================================
 
 
 def test_get_registration_agency_success(mocker, expected_doi, test_data, test_uri):

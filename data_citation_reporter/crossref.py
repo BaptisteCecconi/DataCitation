@@ -75,7 +75,7 @@ def get_single_doi(doi: str, use_cache: bool = True) -> Dict:
 #     return g
 
 
-def get_datacitations(pid: URIRef, api_url=CROSSREF_DATACITATIONS_URL, use_cache: bool = True) -> Dict:
+def get_datacitations(pid: URIRef, api_url=CROSSREF_DATACITATIONS_URL, use_cache: bool = True) -> Graph:
     """Get citation data from CrossRef DataCitations API.
 
     :param pid: Persistent identifier
@@ -109,13 +109,12 @@ def get_datacitations(pid: URIRef, api_url=CROSSREF_DATACITATIONS_URL, use_cache
     return g
 
 
-def check_crossref(src_uri, ref_uri, ref_title, api_url=CROSSREF_WORKS_URL, use_cache: bool = True):
+def check_crossref(src_uri, ref_uri, ref_title, use_cache: bool = True):
     """Check if a URI is present a CrossRef DOI metadata record.
 
     :param src_uri: Source DOI
     :param ref_uri: Reference URI (possibly DOI)
     :param ref_title: Reference title
-    :param api_url: Openaire Scholexplorer API URL (defaults to CROSSREF_WORKS_URL)
     :param use_cache: whether to use cached data
     :return: a dictionary with the status.
     """

@@ -9,28 +9,38 @@ from ..rdf import URIRefDoi, URIRefArXiv
 
 
 class RelationshipType(BaseModel):
+    """RelationshipType class for OpenAire Scholexplorer V3 API parsing"""
+
     Name: str
     SubType: str
     SubTypeSchema: str
 
 
 class ScholixIdentifierType(BaseModel):
+    """ScholixIdentifierType class for OpenAire Scholexplorer V3 API parsing"""
+
     ID: str
     IDScheme: str
     IDURL: str | None
 
 
 class ScholixCreatorType(BaseModel):
+    """ScholixCreatorType class for OpenAire Scholexplorer V3 API parsing"""
+
     name: str
     identifier: list[ScholixIdentifierType]
 
 
 class ScholixLinkProviderType(BaseModel):
+    """ScholixLinkProviderType class for OpenAire Scholexplorer V3 API parsing"""
+
     name: str
     identifier: list[ScholixIdentifierType]
 
 
 class ScholixItemType(BaseModel):
+    """ScholixItemType class for OpenAire Scholexplorer V3 API parsing"""
+
     Identifier: list[ScholixIdentifierType]
     Title: str
     Type: str
@@ -41,6 +51,8 @@ class ScholixItemType(BaseModel):
 
 
 class ScholixType(BaseModel):
+    """ScholixType class for OpenAire Scholexplorer V3 API parsing"""
+
     RelationshipType: RelationshipType
     source: ScholixItemType
     target: ScholixItemType
@@ -51,6 +63,8 @@ class ScholixType(BaseModel):
 
 
 class PageResultType(BaseModel):
+    """PageResultType class for OpenAire Scholexplorer V3 API parsing"""
+
     currentPage: int = 1
     totalLinks: int = 1
     totalPages: int = 1
@@ -58,6 +72,8 @@ class PageResultType(BaseModel):
 
 
 class Relation:
+    """Relation class"""
+
     def __init__(self, data):
         self.target = data.target
         self.source = data.source
@@ -97,6 +113,7 @@ class Relation:
 
     @property
     def target(self):
+        """target"""
         return self._select_pid(self._target)
 
     @target.setter
@@ -105,10 +122,12 @@ class Relation:
 
     @property
     def target_ids(self):
+        """target identifiers"""
         return self._target
 
     @property
     def source(self):
+        """source"""
         return self._select_pid(self._source)
 
     @source.setter
@@ -117,10 +136,12 @@ class Relation:
 
     @property
     def source_ids(self):
+        """source identifiers"""
         return self._source
 
     @property
     def relation(self):
+        """relation"""
         return self._relation[1]
 
     @relation.setter
@@ -129,10 +150,12 @@ class Relation:
 
     @property
     def relation_openaire(self):
+        """relation (openaire version)"""
         return self._relation[0]
 
 
 class ScholexplorerResultV3:
+    """ScholexplorerResultV3 class"""
 
     def __init__(self, raw_data: dict):
         self.data = PageResultType(**raw_data)

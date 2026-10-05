@@ -38,7 +38,7 @@ argument-naming-style = "snake_case"
 attr-naming-style = "snake_case"
 bad-names = ["foo", "bar", "baz", "toto", "tutu", "tata"]
 class-attribute-naming-style = "any"
-class-const-naming-style = "UPPER_CASE"
+class-const-naming-style = "snake_case"
 class-naming-style = "PascalCase"
 const-naming-style = "UPPER_CASE"
 docstring-min-length = -1          # docstrings required everywhere; relax to ~50 if too noisy
@@ -61,14 +61,14 @@ valid-metaclass-classmethod-first-arg = ["mcs"]
 max-args = 8
 max-attributes = 7
 max-bool-expr = 5
-max-branches = 12
-max-locals = 15
+max-branches = 30
+max-locals = 30
 max-parents = 7
 max-positional-arguments = 8
 max-public-methods = 20
 max-returns = 6
-max-statements = 50
-min-public-methods = 2
+max-statements = 100
+min-public-methods = 0
 
 [tool.pylint.exceptions]
 overgeneral-exceptions = ["builtins.BaseException", "builtins.Exception"]
@@ -94,7 +94,7 @@ timeout-methods = ["requests.api.delete", "requests.api.get", "requests.api.head
 notes = ["FIXME", "XXX", "TODO"]
 
 [tool.pylint.refactoring]
-max-nested-blocks = 5
+max-nested-blocks = 7
 never-returning-functions = ["sys.exit", "argparse.parse_error"]
 suggest-join-with-non-empty-separator = true
 

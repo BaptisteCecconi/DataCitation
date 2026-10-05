@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# test_nasa_ads.py
+"""Test module for nasa_ads.py"""
 
 import pytest
 
@@ -10,53 +10,63 @@ from data_citation_reporter.nasa_ads import get_nasa_ads
 from data_citation_reporter.rdf import URIRefDoi
 
 
-@pytest.fixture
-def test_api():
+@pytest.fixture(name="test_api")
+def fixture_api():
+    """test_api"""
     return "http://test.url/api"
 
 
-@pytest.fixture
-def test_doi():
+@pytest.fixture(name="test_doi")
+def fixture_doi():
+    """test_doi"""
     return "10.1234/example.doi"
 
 
-@pytest.fixture
-def test_uri(test_doi):
+@pytest.fixture(name="test_uri")
+def fixture_uri(test_doi):
+    """test_uri"""
     return URIRefDoi(f"https://doi.org/{test_doi}")
 
 
-@pytest.fixture
-def expected_query(test_doi):
+@pytest.fixture(name="expected_query")
+def fixture_expected_query(test_doi):
+    """expected_query"""
     return f"full:{test_doi}"
 
 
-@pytest.fixture
-def expected_fl():
+@pytest.fixture(name="expected_fl")
+def fixture_expected_fl():
+    """expected_fl"""
     return "doi"
 
 
-@pytest.fixture
-def expected_access_url(test_api, expected_query, expected_fl):
+@pytest.fixture(name="expected_access_url")
+def fixture_expected_access_url(test_api, expected_query, expected_fl):
+    """expected_access_url"""
     return f"{test_api}/search/query?q={expected_query}&fl={expected_fl}"
 
 
-@pytest.fixture
-def test_citing1():
+@pytest.fixture(name="test_citing1")
+def fixture_citing1():
+    """test_citing1"""
     return "10.5678/first.doi"
 
 
-@pytest.fixture
-def test_citing2():
+@pytest.fixture(name="test_citing2")
+def fixture_citing2():
+    """test_citing2"""
     return "10.9999/second.doi"
 
 
-@pytest.fixture
-def test_citing3():
+@pytest.fixture(name="test_citing3")
+def fixture_citing3():
+    """test_citing3"""
     return "10.1111/third.doi"
 
 
-@pytest.fixture
-def test_response_with_results(test_citing1, test_citing2, test_citing3):
+@pytest.fixture(name="test_response_with_results")
+def fixture_response_with_results(test_citing1, test_citing2, test_citing3):
+    """test_response_with_results"""
     return {
         "response": {
             "numFound": 2,
@@ -68,12 +78,15 @@ def test_response_with_results(test_citing1, test_citing2, test_citing3):
     }
 
 
-@pytest.fixture
-def test_response_no_results():
+@pytest.fixture(name="test_response_no_results")
+def fixture_response_no_results():
+    """test_response_no_results"""
     return {"response": {"numFound": 0, "docs": []}}
 
 
-"""Unit tests for the get_nasa_ads function"""
+# ========================================
+# Unit tests for the get_nasa_ads function
+# ========================================
 
 
 def test_get_nasa_ads_success(

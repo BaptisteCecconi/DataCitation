@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# test_datacite.py
+"""Test Moule for datacite.py"""
 
 import pytest
 
@@ -10,21 +10,26 @@ from data_citation_reporter.datacite import (
 )
 from data_citation_reporter.static import DATACITE_DOIS_URL
 
-"""Unit tests for the get_single_doi function"""
+# ==========================================
+# Unit tests for the get_single_doi function
+# ==========================================
 
 
-@pytest.fixture
-def test_doi():
+@pytest.fixture(name="test_doi")
+def fixture_doi():
+    """test_doi"""
     return "10.1234/example.doi"
 
 
-@pytest.fixture
-def expected_access_url(test_doi):
+@pytest.fixture(name="expected_access_url")
+def fixture_expected_access_url(test_doi):
+    """expected_access_url"""
     return f"{DATACITE_DOIS_URL}/{test_doi}"
 
 
-@pytest.fixture
-def test_data():
+@pytest.fixture(name="test_data")
+def fixture_data():
+    """test_data"""
     return {
         "data": {
             "id": "https://doi.org/10.1234/example.doi",
@@ -86,21 +91,26 @@ def test_get_single_doi_empty_data(mocker, test_doi, expected_access_url):
     mock_get.assert_called_once_with(expected_access_url, use_cache=True)
 
 
-"""Unit tests for the get_dois_from_prefix function"""
+# ================================================
+# Unit tests for the get_dois_from_prefix function
+# ================================================
 
 
-@pytest.fixture
-def test_prefix():
+@pytest.fixture(name="test_prefix")
+def fixture_prefix():
+    """test_prefix"""
     return "10.1234"
 
 
-@pytest.fixture
-def initial_access_url(test_prefix):
+@pytest.fixture(name="initial_access_url")
+def fixture_initial_access_url(test_prefix):
+    """initial_access_url"""
     return f"{DATACITE_DOIS_URL}?prefix={test_prefix}&page%5Bsize%5D=50"
 
 
-@pytest.fixture
-def single_page_data():
+@pytest.fixture(name="single_page_data")
+def fixture_single_page_data():
+    """single_page_data"""
     return {
         "data": [
             {"id": "10.1234/first.doi", "type": "dois"},
@@ -110,8 +120,9 @@ def single_page_data():
     }
 
 
-@pytest.fixture
-def first_page_data():
+@pytest.fixture(name="first_page_data")
+def fixture_first_page_data():
+    """first_page_data"""
     return {
         "data": [
             {"id": "10.1234/first.doi", "type": "dois"},
@@ -121,8 +132,9 @@ def first_page_data():
     }
 
 
-@pytest.fixture
-def second_page_data():
+@pytest.fixture(name="second_page_data")
+def fixture_second_page_data():
+    """second_page_data"""
     return {
         "data": [
             {"id": "10.1234/third.doi", "type": "dois"},
@@ -183,7 +195,7 @@ def test_get_dois_from_prefix_empty_data(mocker, test_prefix, initial_access_url
     result = get_dois_from_prefix(test_prefix)
 
     # Verify the result
-    assert result == []
+    assert not result
 
     # Verify the access URL construction
     mock_get.assert_called_once_with(initial_access_url)
@@ -211,21 +223,26 @@ def test_get_dois_from_prefix_custom_page_size(mocker, test_prefix):
     assert result[0]["id"] == "10.1234/test.doi"
 
 
-"""Unit tests for the check_datacite function"""
+# ==========================================
+# Unit tests for the check_datacite function
+# ==========================================
 
 
-@pytest.fixture
-def src_uri():
+@pytest.fixture(name="src_uri")
+def fixture_src_uri():
+    """src_uri"""
     return "https://doi.org/10.1234/source.doi"
 
 
-@pytest.fixture
-def ref_uri():
+@pytest.fixture(name="ref_uri")
+def fixture_ref_uri():
+    """ref_uri"""
     return "https://doi.org/10.5678/reference.doi"
 
 
-@pytest.fixture
-def test_response_with_reference():
+@pytest.fixture(name="test_response_with_reference")
+def fixture_response_with_reference():
+    """test_response_with_reference"""
     return {
         "attributes": {
             "publisher": "test publisher",
@@ -245,8 +262,9 @@ def test_response_with_reference():
     }
 
 
-@pytest.fixture
-def test_response_without_reference():
+@pytest.fixture(name="test_response_without_reference")
+def fixture_response_without_reference():
+    """test_response_without_reference"""
     return {
         "attributes": {
             "publisher": "test publisher",
@@ -261,8 +279,9 @@ def test_response_without_reference():
     }
 
 
-@pytest.fixture
-def test_response_no_related():
+@pytest.fixture(name="test_response_no_related")
+def fixture_response_no_related():
+    """test_response_no_related"""
     return {"attributes": {"publisher": "test publisher", "relatedIdentifiers": []}}
 
 

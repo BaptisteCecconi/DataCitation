@@ -122,7 +122,7 @@ def datacite_relation(key: str) -> URIRef:
 
     def clean_up(key: str) -> str:
         # first check if the input key is in the list of DATACITE_RELATIONS keys, ignoring the case
-        for item in DATACITE_RELATIONS.keys():
+        for item in DATACITE_RELATIONS:
             if key.lower() == item.lower():
                 return item
         key = key.replace(" ", "_")
@@ -130,16 +130,14 @@ def datacite_relation(key: str) -> URIRef:
         parts = key.split("_")
         if len(parts) > 1:
             return "".join([item.capitalize() for item in key.split("_")])
-        else:
-            return key[0].upper() + key[1:]
+        return key[0].upper() + key[1:]
 
     clean_key = clean_up(key)
     print(clean_key)
 
-    if clean_key in DATACITE_RELATIONS.keys():
+    if clean_key in DATACITE_RELATIONS:
         return DATACITE_RELATIONS[clean_key]
-    else:
-        raise KeyError(key)
+    raise KeyError(key)
 
 
 def predicate_repr(term: str) -> str:

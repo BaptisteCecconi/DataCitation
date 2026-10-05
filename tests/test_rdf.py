@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-# test_rdf.py
+"""Test module for rdf.py"""
+
 import pytest
 from rdflib import URIRef, Literal, Graph
 from rdflib.namespace import RDF
@@ -122,9 +123,7 @@ def test_bibcode_ads_full_url():
 
 def test_bibcode_ui_ads_to_ads():
     """Test ui.adsabs.harvard.edu URL converted to standard ADS"""
-    result = URIRefBibcode(
-        "https://ui.adsabs.harvard.edu/abs/2023ApJ...123...45A"
-    )
+    result = URIRefBibcode("https://ui.adsabs.harvard.edu/abs/2023ApJ...123...45A")
     expected = URIRef("https://adsabs.harvard.edu/abs/2023ApJ...123...45A")
     assert result == expected
 
@@ -174,9 +173,7 @@ def test_arxiv_case_sensitivity():
 def test_reverse_existing_predicate(mocker):
     """Test reversing an existing predicate"""
     # Setup mock
-    mock_reverse_property = mocker.patch(
-        "data_citation_reporter.rdf.REVERSE_PROPERTY"
-    )
+    mock_reverse_property = mocker.patch("data_citation_reporter.rdf.REVERSE_PROPERTY")
     test_uri = URIRef("http://example.org/isCitedBy")
     reversed_uri = URIRef("http://example.org/cites")
     mock_reverse_property.__getitem__.return_value = reversed_uri
@@ -191,9 +188,7 @@ def test_reverse_existing_predicate(mocker):
 def test_reverse_missing_predicate(mocker):
     """Test reversing a predicate that doesn't exist in REVERSE_PROPERTY"""
     # Setup mock to raise KeyError
-    mock_reverse_property = mocker.patch(
-        "data_citation_reporter.rdf.REVERSE_PROPERTY"
-    )
+    mock_reverse_property = mocker.patch("data_citation_reporter.rdf.REVERSE_PROPERTY")
     test_uri = URIRef("http://example.org/unknownPredicate")
     mock_reverse_property.__getitem__.side_effect = KeyError(test_uri)
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# test_scholexplorer.py
+"""Test module for scholexplorer.py"""
 
 from collections import namedtuple
 import pytest
@@ -17,23 +17,27 @@ from data_citation_reporter.namespaces import CITO
 from data_citation_reporter.rdf import URIRefDoi
 
 
-@pytest.fixture
-def test_doi():
+@pytest.fixture(name="test_doi")
+def fixture_doi():
+    """test_doi"""
     return "10.1234/example.doi"
 
 
-@pytest.fixture
-def test_pid(test_doi):
+@pytest.fixture(name="test_pid")
+def fixture_pid(test_doi):
+    """test_pid"""
     return URIRefDoi(f"https://doi.org/{test_doi}")
 
 
-@pytest.fixture
-def expected_access_url(test_doi):
+@pytest.fixture(name="expected_access_url")
+def fixture_expected_access_url(test_doi):
+    """expected_access_url"""
     return f"https://api.openaire.eu/graph/v1/researchProducts/links?targetPid={test_doi}&page=0&pageSize=100"
 
 
-@pytest.fixture
-def test_data():
+@pytest.fixture(name="test_data")
+def fixture_data():
+    """test_data"""
     return {
         "header": {
             "debug": {},
@@ -108,8 +112,9 @@ def test_data():
     }
 
 
-@pytest.fixture
-def test_data_no_doi():
+@pytest.fixture(name="test_data_no_doi")
+def fixture_data_no_doi():
+    """test_data_no_doi"""
     return {
         "header": {
             "debug": {},
@@ -148,8 +153,9 @@ def test_data_no_doi():
     }
 
 
-@pytest.fixture
-def test_empty_data():
+@pytest.fixture(name="test_empty_data")
+def fixture_empty_data():
+    """test_empty_data"""
     return {
         "header": {
             "debug": {},
@@ -169,12 +175,15 @@ def test_empty_data():
     }
 
 
-@pytest.fixture
-def custom_api_url():
+@pytest.fixture(name="custom_api_url")
+def fixture_custom_api_url():
+    """custom_api_url"""
     return "https://custom.api.example.org/graph/v1/researchProducts/links"
 
 
-"""Unit tests for the get_openaire_graph function"""
+# ==============================================
+# Unit tests for the get_openaire_graph function
+# ==============================================
 
 
 def test_get_openaire_graph_success(mocker, test_data, test_pid):
@@ -360,14 +369,14 @@ def test_get_scholexplorer_v3(mocker):
     mock_get = mocker.patch("data_citation_reporter.openaire.get")
     mock_get.return_value = 1
 
-    mock_ScholexplorerResultV3 = mocker.patch("data_citation_reporter.openaire.ScholexplorerResultV3")
+    mock_scholexplorer_result_v3 = mocker.patch("data_citation_reporter.openaire.ScholexplorerResultV3")
     Relation = namedtuple("Relation", ["source", "relation", "target"])
     rel = Relation(
         source=URIRef("https://doi.org/10.1010/abcd"),
         relation=URIRef("ns:cites"),
         target=URIRef("https://doi.org/10.2020/defg"),
     )
-    mock_ScholexplorerResultV3.return_value.relations = [rel]
+    mock_scholexplorer_result_v3.return_value.relations = [rel]
 
     result = get_scholexplorer_v3(URIRef("https://doi.org/10.1010/abcd"))
 

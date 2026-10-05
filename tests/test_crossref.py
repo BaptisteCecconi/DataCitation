@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# test_crossref.py
+"""Test Module for test_crossref.py"""
 
 import pytest
 from rdflib import Graph, URIRef
@@ -17,21 +17,26 @@ from data_citation_reporter.static import (
 from data_citation_reporter.namespaces import CITO
 from data_citation_reporter.rdf import URIRefDoi
 
-"""Unit tests for the get_single_doi function"""
+# ==========================================
+# Unit tests for the get_single_doi function
+# ==========================================
 
 
-@pytest.fixture
-def test_doi():
+@pytest.fixture(name="test_doi")
+def fixture_doi():
+    """test_doi"""
     return URIRefDoi("10.1234/example.doi")
 
 
-@pytest.fixture
-def expected_access_url_crossrefworks(test_doi):
+@pytest.fixture(name="expected_access_url_crossrefworks")
+def fixture_expected_access_url_crossrefworks(test_doi):
+    """expected_access_url_crossrefworks"""
     return f"{CROSSREF_WORKS_URL}/{test_doi}"
 
 
-@pytest.fixture
-def test_message():
+@pytest.fixture(name="test_message")
+def fixture_message():
+    """test_message"""
     return {
         "title": ["Test Paper"],
         "author": [{"given": "John", "family": "Doe"}],
@@ -71,21 +76,26 @@ def test_get_single_doi_api_error(mocker, test_doi, expected_access_url_crossref
     mock_get.assert_called_once_with(expected_access_url_crossrefworks, use_cache=True)
 
 
-"""Unit tests for the get_datacitations function"""
+# =============================================
+# Unit tests for the get_datacitations function
+# =============================================
 
 
-@pytest.fixture
-def test_pid(test_doi):
+@pytest.fixture(name="test_pid")
+def fixture_pid(test_doi):
+    """test_pid"""
     return URIRef(f"https://doi.org/{test_doi}")
 
 
-@pytest.fixture
-def expected_access_url_datacitations(test_doi):
+@pytest.fixture(name="expected_access_url_datacitations")
+def fixture_expected_access_url_datacitations(test_doi):
+    """expected_access_url_datacitations"""
     return f"{CROSSREF_DATACITATIONS_URL}?object-id={test_doi}"
 
 
-@pytest.fixture
-def test_data():
+@pytest.fixture(name="test_data")
+def fixture_data():
+    """test_data"""
     return {
         "message": {
             "total-results": 2,
@@ -112,10 +122,9 @@ def test_get_datacitations_success(mocker, test_data, test_doi, test_pid, expect
     mock_get.return_value = test_data
     mock_shorten_doi = mocker.patch("data_citation_reporter.crossref.shorten_doi")
     mock_shorten_doi.return_value = test_doi
-    mock_urirefdoi = mocker.patch("data_citation_reporter.crossref.URIRefDoi")
-    mock_relations = mocker.patch("data_citation_reporter.crossref.datacite_relation")
 
     # Mock URIRefDoi calls
+    mock_urirefdoi = mocker.patch("data_citation_reporter.crossref.URIRefDoi")
     mock_subject1 = URIRef("https://doi.org/10.5678/subject.doi")
     mock_object1 = URIRef("https://doi.org/10.9999/object.doi")
     mock_subject2 = URIRef("https://doi.org/10.1111/subject2.doi")
@@ -128,6 +137,7 @@ def test_get_datacitations_success(mocker, test_data, test_doi, test_pid, expect
     ]
 
     # Mock relations
+    mock_relations = mocker.patch("data_citation_reporter.crossref.datacite_relation")
     mock_is_cited_by = CITO.cites
     mock_references = CITO.citesForInformation
     mock_relations.side_effect = [
@@ -194,31 +204,38 @@ def test_get_datacitations_no_results(mocker, test_doi, test_pid):
     mock_print.assert_any_call(f"{test_doi}: 0")
 
 
-"""Unit tests for the check_crossref function"""
+# ==========================================
+# Unit tests for the check_crossref function
+# ==========================================
 
 
-@pytest.fixture
-def src_uri():
+@pytest.fixture(name="src_uri")
+def fixture_src_uri():
+    """scr_uri"""
     return "https://doi.org/10.1234/source.doi"
 
 
-@pytest.fixture
-def ref_uri():
+@pytest.fixture(name="ref_uri")
+def fixture_ref_uri():
+    """ref_uri"""
     return "https://doi.org/10.1234/reference.doi"
 
 
-@pytest.fixture
-def ref_title():
+@pytest.fixture(name="ref_title")
+def fixture_ref_title():
+    """ref_title"""
     return "Test Reference Title"
 
 
-@pytest.fixture
-def expected_access_url_crossref():
+@pytest.fixture(name="expected_access_url_crossref")
+def fixture_expected_access_url_crossref():
+    """expected_access_url_crossref"""
     return f"{CROSSREF_WORKS_URL}/10.1234/source.doi"
 
 
-@pytest.fixture
-def test_data_with_references(ref_uri):
+@pytest.fixture(name="test_data_with_references")
+def fixture_test_data_with_references():
+    """test_data_with_references"""
     return {
         "message": {
             "publisher": "test publisher",
@@ -237,8 +254,9 @@ def test_data_with_references(ref_uri):
     }
 
 
-@pytest.fixture
-def test_data_without_references():
+@pytest.fixture(name="test_data_without_references")
+def fixture_test_data_without_references():
+    """test_data_without_references"""
     return {
         "message": {
             "publisher": "test publisher",

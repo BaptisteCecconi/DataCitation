@@ -46,10 +46,12 @@ def get_scholexplorer(pid, api_version: int = 3, use_cache: bool = True):
 
 
 def get_scholexplorer_v1(pid, api_url=SCHOLEXPLORER_V1_URL, use_cache: bool = True):
+    """OpenAire Scholexplorer API v1: Not implemented"""
     raise NotImplementedError
 
 
 def get_scholexplorer_v2(pid, api_url=SCHOLEXPLORER_V2_URL, use_cache: bool = True):
+    """OpenAire Scholexplorer API v2: Not implemented"""
     raise NotImplementedError
 
 
@@ -112,10 +114,12 @@ def get_openaire_graph(pid, api_version: int = 3, use_cache: bool = True):
 
 
 def get_openaire_graph_v1(pid, api_url=OPENAIREGRAPH_V1_URL, use_cache: bool = True):
+    """OpenAire Graph v1: Not implemented"""
     raise NotImplementedError
 
 
 def get_openaire_graph_v2(pid, api_url=OPENAIREGRAPH_V2_URL, use_cache: bool = True):
+    """OpenAire Graph v2: Not implemented"""
     raise NotImplementedError
 
 
@@ -183,4 +187,5 @@ def get_openaire_graph_v3(pid, api_url=OPENAIREGRAPH_V3_URL, use_cache: bool = T
 
 
 def get_openaire_graph_v4(pid, api_url=OPENAIREGRAPH_V4_URL, use_cache: bool = True):
+    """OpenAire Graph v4: Not implemented"""
     raise NotImplementedError

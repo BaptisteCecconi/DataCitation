@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# test_opencitations.py
+"""Test Module for opencitations.py"""
 
 import pytest
 
@@ -11,43 +11,51 @@ from data_citation_reporter.static import OPENCITATIONS_V1_URL
 from data_citation_reporter.namespaces import BIBLINK
 
 
-@pytest.fixture
-def test_doi():
+@pytest.fixture(name="test_doi")
+def fixture_doi():
+    """test_doi"""
     return "10.1234/example.doi"
 
 
-@pytest.fixture
-def test_pid(test_doi):
+@pytest.fixture(name="test_pid")
+def fixture_pid(test_doi):
+    """test_pid"""
     return f"https://doi.org/{test_doi}"
 
 
-@pytest.fixture
-def expected_access_url(test_doi):
+@pytest.fixture(name="expected_access_url")
+def fixture_expected_access_url(test_doi):
+    """expected_access_url"""
     return f"{OPENCITATIONS_V1_URL}/citations/{test_doi}"
 
 
-@pytest.fixture
-def test_data():
+@pytest.fixture(name="test_data")
+def fixture_data():
+    """ "test_data"""
     return [
         {"citing": "10.5678/another.doi"},
         {"citing": "10.9999/test.doi"},
     ]
 
 
-@pytest.fixture
-def expected_citation_set():
+@pytest.fixture(name="expected_citation_set")
+def fixture_expected_citation_set():
+    """expected_citation_set"""
     return {
         ("10.5678/another.doi", "doi"),
         ("10.9999/test.doi", "doi"),
     }
 
 
-@pytest.fixture
-def custom_api_url():
+@pytest.fixture(name="custom_api_url")
+def fixture_custom_api_url():
+    """custom_api_url"""
     return "https://custom.api.example.org/"
 
 
-"""Unit tests for the get_opencitations function"""
+# =============================================
+# Unit tests for the get_opencitations function
+# =============================================
 
 
 def test_get_opencitations_success(mocker, test_data, test_pid, expected_access_url, test_doi, expected_citation_set):

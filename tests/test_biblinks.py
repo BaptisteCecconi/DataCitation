@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# test_biblinks.py
+"""Test module for biblinks.py"""
 
 import pytest
 from rdflib import URIRef, Literal
@@ -8,8 +8,9 @@ from data_citation_reporter.biblinks import get_biblinks
 from data_citation_reporter.rdf import Graph
 
 
-@pytest.fixture
-def biblinks_data():
+@pytest.fixture(name="biblinks_data")
+def fuxture_biblinks_data():
+    """biblinks_data"""
     return [
         {
             "bib-ref": "2023ApJ...123...45A",
