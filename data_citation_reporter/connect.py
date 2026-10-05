@@ -39,7 +39,8 @@ def get(
     :param timeout: timeout in seconds (defaults to 120 seconds)
     :param ttl: time-to-live in seconds for cached entries (defaults to 86400 seconds)
     :param use_cache: if False, bypasses the cache entirely (defaults to True)
-    :param update_cache: if True, remove previously stored cache for this query and replace with new value (defaults to False)
+    :param update_cache: if True, remove previously stored cache for this query and replace with new value
+                         (defaults to False)
     :return: parsed JSON response, or None on error
     """
     if headers is None:

@@ -12,9 +12,10 @@ repos:
   - id: flake8
     args: ['--ignore=E501,W503,E231,E203,F821']
 
-- repo: https://github.com/pylint-dev/pylint
-  rev: v3.3.7
+- repo: local
   hooks:
-  - id: pylint
-    additional_dependencies: [pylint>=3.3]
-    args: [--rcfile pyproject.toml]
+    - id: pylint
+      name: pylint
+      entry: python -m pylint
+      language: system
+      types: [python]
