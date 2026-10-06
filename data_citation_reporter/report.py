@@ -175,7 +175,7 @@ class Report(Graph):
         creator_name = str(result[FOAF.name])
         if isinstance(node, BNode):
             return creator_name
-        return f"{creator_name} ([{str(node).rsplit('/', maxsplit=1)[-1]}({str(node)}))"
+        return f"{creator_name} ([{str(node).rsplit('/', maxsplit=1)[-1]}]({str(node)}))"
 
     def export_citations(self, doi=None, file_format="md", filename=None, use_cache=None):
         """Export citation data for given DOI.
