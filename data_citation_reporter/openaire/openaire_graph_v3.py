@@ -358,7 +358,8 @@ class Relation:
 
     @relation.setter
     def relation(self, data):
-        self._relation = (data.name, OPENAIRE_RELATIONS[data.typeSchema][data.type])
+        openaire_relation = data.name if data.type is None else data.type
+        self._relation = (data.name, OPENAIRE_RELATIONS[data.typeSchema][openaire_relation])
 
     @property
     def relation_openaire(self):
