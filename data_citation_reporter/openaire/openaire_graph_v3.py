@@ -36,17 +36,17 @@ class OpenAccessRouteEnum(str, Enum):
 class SearchHeader(BaseModel):
     """SearchHeader class for OpenAire Graph V3 API parsing"""
 
-    debug: dict
-    numFound: int
-    maxScore: float | int
-    queryTime: int
+    debug: dict = None
+    numFound: int = None
+    maxScore: float | int = None
+    queryTime: int = None
     page: int
-    pageSize: int
+    pageSize: int = None
     totalPages: int
     totalLinks: int
-    totalCitationsCount: int
-    countsByType: dict
-    nextCursor: str
+    totalCitationsCount: int = None
+    countsByType: dict = None
+    nextCursor: str = None
 
 
 class Pid(BaseModel):
@@ -258,7 +258,7 @@ class Identifier(BaseModel):
 
     id: str
     idScheme: str
-    idUrl: str
+    idUrl: str | None
 
 
 class Entity(BaseModel):
@@ -284,7 +284,7 @@ class RelType(BaseModel):
     """RelType class for OpenAire Graph V3 API parsing"""
 
     name: str
-    type: str
+    type: str = None
     typeSchema: str
 
 
@@ -301,7 +301,7 @@ class SearchResponseRelationType(BaseModel):
 
     header: SearchHeader
     results: list[RelationType]
-    facets: dict
+    facets: dict = None
 
 
 class Relation:
