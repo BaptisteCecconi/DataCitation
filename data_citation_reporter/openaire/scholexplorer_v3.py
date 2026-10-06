@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# pylint: disable=duplicate-code
 """Module for handling OpenAire Scholexplorer V3 API."""
 
 from pydantic import BaseModel
