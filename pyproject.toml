@@ -133,7 +133,7 @@ redefining-builtins-modules = ["six.moves", "past.builtins", "future.builtins", 
 
 [project]
 name = "data-citation-reporter"
-version = "0.0"
+version = "1.0"
 dependencies = [
     "rdflib",
     "requests",

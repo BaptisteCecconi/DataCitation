@@ -1,12 +1,12 @@
 # DataCitation reporting scripts
 
 This module can be used to create data citation reports from a data DOI
-(Digital Object Identifier). The scripts queries various sources of 
+(Digital Object Identifier). The scripts query various sources of 
 metadata to build a graph of relations, which can be summarised into 
 a report file.
 
 ## Usage
-The module can be install using pip:
+The module can be installed using pip:
 ```
 pip install git+https://github.com/BaptisteCecconi/DataCitation.git
 ```
@@ -25,7 +25,7 @@ report.include_biblinks()
 report.export_citations(file_format="md", filename=f"reports/{doi}/citations.md")
 ```
 
-This will create a report (in markdown format) in a subdirectory `reports/10.25935/6jg4-mk86/citations.md`.
+This will create a report (in Markdown format) in a subdirectory `reports/10.25935/6jg4-mk86/citations.md`.
 
 ## Notes
 - A NASA/ADS API key will be asked when running the `report.include_nasa_ads()` command. You need to have a NASA/ADS account and create an API key (or use an existing one). See [NASA/ADS API Documentation](https://ui.adsabs.harvard.edu/help/api/) for more details.
