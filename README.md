@@ -29,4 +29,3 @@ This will create a report (in markdown format) in a subdirectory `reports/10.259
 
 ## Notes
 - A NASA/ADS API key will be asked when running the `report.include_nasa_ads()` command. You need to have a NASA/ADS account and create an API key (or use an existing one). See [NASA/ADS API Documentation](https://ui.adsabs.harvard.edu/help/api/) for more details.
-- As of Sept. 30th 2026, OpenAire Graph Links V3 API is not working, so we switched to OpenAire Scholexplorer V3 Links API.
