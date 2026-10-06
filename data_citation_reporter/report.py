@@ -288,6 +288,8 @@ class Report(Graph):
                             continue
                         if "publisher" in result.keys():
                             f.write(f"  Publisher: {result["publisher"]}\n\n")
+                            if result["publisher"] == "arXiv":
+                                raise ValueError("  ⚠️ arXiv never includes relationship metadata.")
                         if "container" in result.keys():
                             f.write(f"  Container: {"; ".join(result["container"])}\n\n")
                         f.write(f"  {buttons[result['status']]} {result['message']}\n")
