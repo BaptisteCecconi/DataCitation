@@ -29,3 +29,6 @@ This will create a report (in Markdown format) in a subdirectory `reports/10.259
 
 ## Notes
 - A NASA/ADS API key will be asked when running the `report.include_nasa_ads()` command. You need to have a NASA/ADS account and create an API key (or use an existing one). See [NASA/ADS API Documentation](https://ui.adsabs.harvard.edu/help/api/) for more details.
+
+## Acknowledgments
+This work has been supported by the OSTrails project, which has received funding from the European Union’s Horizon Europe framework programme under grant agreement No. 101130187.
